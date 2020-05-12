@@ -660,7 +660,7 @@ GameObject:
   m_Component:
   - component: {fileID: 775045723}
   - component: {fileID: 775045724}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -884,6 +884,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7653491116029660291, guid: 431c887a870065100848c658e6a6e4fe,
+        type: 3}
+      propertyPath: whatIsGrounded.m_Bits
+      value: 256
       objectReference: {fileID: 0}
     - target: {fileID: 8002042541438421066, guid: 431c887a870065100848c658e6a6e4fe,
         type: 3}
