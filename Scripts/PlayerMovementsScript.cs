@@ -8,6 +8,7 @@ public class PlayerMovementsScript : MonoBehaviour
     [SerializeField] private float m_JumpForce = 15f;
     [SerializeField] private float fallMultiplier = 15f;
     [SerializeField] private float lowJumpMultiplier = 4f;
+    [SerializeField] private int m_NbrOfJumpMax = 2;
     [Range(0, 0.3f)] [SerializeField] private float m_MovementSmoothing = .05f;
     [Range(0, 1000f)] [SerializeField] private float m_MovementSpeed = 500f;
     [Range(0, 1000f)] [SerializeField] private float m_MaxSpeed = 1000f;
@@ -17,13 +18,10 @@ public class PlayerMovementsScript : MonoBehaviour
     private float direction = 0f;
     private bool horizontalMove = false;
     private bool jumpMove = false;
-    private bool jumpActive = true;
     private int nbrJump = 0;
     private bool playerOnTheGround = true;
-    private bool playerInTheAir = true;
     private bool keyPressed = false;
     public LayerMask whatIsGrounded;
-    public float checkRadius;
     
     void Awake() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
@@ -49,8 +47,14 @@ public class PlayerMovementsScript : MonoBehaviour
         Vector2 targetVelocity = new Vector2(direction * m_MovementSpeed * Time.fixedDeltaTime, m_Rigidbody2D.velocity.y);
         
         if(jumpMove && playerOnTheGround) targetVelocity.y = m_JumpForce;
+        if(jumpMove && !playerOnTheGround && nbrJump<=m_NbrOfJumpMax) {
+            targetVelocity.y = Mathf.Abs(m_Rigidbody2D.velocity.y)+m_JumpForce;
+            m_Rigidbody2D.velocity = new Vector2(m_Rigidbody2D.velocity.x,0);
+        }
         if(m_Rigidbody2D.velocity.y>0) targetVelocity.y += Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
         if(m_Rigidbody2D.velocity.y<0) targetVelocity.y += Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+        
+        
         
         m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing, m_MaxSpeed);
         
