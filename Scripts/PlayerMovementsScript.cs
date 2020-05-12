@@ -54,8 +54,6 @@ public class PlayerMovementsScript : MonoBehaviour
         if(m_Rigidbody2D.velocity.y>0) targetVelocity.y += Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
         if(m_Rigidbody2D.velocity.y<0) targetVelocity.y += Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
         
-        
-        
         m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing, m_MaxSpeed);
         
         horizontalMove = false;
