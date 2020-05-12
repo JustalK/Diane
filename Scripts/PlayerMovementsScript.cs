@@ -20,6 +20,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool jumpActive = true;
     private int nbrJump = 0;
     private bool playerOnTheGround = true;
+    private bool playerInTheAir = true;
     private bool keyPressed = false;
     public LayerMask whatIsGrounded;
     public float checkRadius;
@@ -35,19 +36,19 @@ public class PlayerMovementsScript : MonoBehaviour
         direction = Input.GetAxisRaw("Horizontal");
         
         horizontalMove = Input.GetButtonDown("Horizontal") ? true : horizontalMove;
-        playerOnTheGround = Physics2D.OverlapCircle(feetPos.position,checkRadius,whatIsGrounded);
-        if(playerOnTheGround) nbrJump=0;
-        jumpActive = playerOnTheGround || nbrJump<2;
-        jumpMove = Input.GetButtonDown("Jump") ? true : jumpMove;
-        if(!playerOnTheGround && jumpMove) {
+        
+        if(Input.GetButtonDown("Jump")) {
+            jumpMove = true;
             nbrJump++;
+            Debug.Log("JUMP : "+nbrJump);
         }
+        
     }
     
     void FixedUpdate() {
         Vector2 targetVelocity = new Vector2(direction * m_MovementSpeed * Time.fixedDeltaTime, m_Rigidbody2D.velocity.y);
         
-        if(jumpMove && jumpActive) targetVelocity.y = m_JumpForce;
+        if(jumpMove && playerOnTheGround) targetVelocity.y = m_JumpForce;
         if(m_Rigidbody2D.velocity.y>0) targetVelocity.y += Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
         if(m_Rigidbody2D.velocity.y<0) targetVelocity.y += Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
         
@@ -55,5 +56,19 @@ public class PlayerMovementsScript : MonoBehaviour
         
         horizontalMove = false;
         jumpMove = false;
+    }
+    
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        if(col.gameObject.layer == LayerMask.NameToLayer("ground")) {
+            playerOnTheGround = true;
+            Debug.Log("RESET");
+            nbrJump=0;
+        }
+    }
+    
+    void OnCollisionExit2D(Collision2D col)
+    {
+        playerOnTheGround = false;
     }
 }
