@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 5878590570426565219}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -99,16 +99,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   feetPos: {fileID: 7627443647156452337}
-  m_JumpForce: 100
-  fallMultiplier: 20
-  lowJumpMultiplier: 20
+  m_JumpForce: 80
+  m_DashForce: 30
+  m_FallMultiplier: 20
+  m_JumpMultiplier: 20
+  m_NbrOfJumpMax: 2
   m_MovementSmoothing: 0.1
   m_MovementSpeed: 500
-  m_MaxSpeed: 800
   whatIsGrounded:
     serializedVersion: 2
     m_Bits: 256
-  checkRadius: 0.3
 --- !u!58 &5878590570426565219
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -137,7 +137,7 @@ GameObject:
   - component: {fileID: 4016873931259966508}
   m_Layer: 0
   m_Name: New Sprite
-  m_TagString: Untagged
+  m_TagString: FeetPlayer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

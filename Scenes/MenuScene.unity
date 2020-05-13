@@ -1907,6 +1907,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3021573962375244647, guid: 431c887a870065100848c658e6a6e4fe,
+        type: 3}
+      propertyPath: m_TagString
+      value: FeetPlayer
+      objectReference: {fileID: 0}
     - target: {fileID: 4016873929894401628, guid: 431c887a870065100848c658e6a6e4fe,
         type: 3}
       propertyPath: m_Name
