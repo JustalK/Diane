@@ -99,10 +99,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   feetPos: {fileID: 7627443647156452337}
-  m_JumpForce: 80
+  m_JumpForce: 20
+  m_LongJumpForce: 10
   m_DashForce: 30
   m_FallMultiplier: 20
-  m_JumpMultiplier: 20
+  m_JumpMultiplier: 25
   m_NbrOfJumpMax: 2
   m_MovementSmoothing: 0.1
   m_MovementSpeed: 500

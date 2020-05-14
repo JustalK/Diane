@@ -5,7 +5,8 @@ using UnityEngine;
 public class PlayerMovementsScript : MonoBehaviour
 {
     [SerializeField] private Transform feetPos;
-    [SerializeField] private float m_JumpForce = 75f;
+    [SerializeField] private float m_JumpForce = 50f;
+    [SerializeField] private float m_LongJumpForce = 2f;
     [SerializeField] private float m_DashForce = 25f;
     [SerializeField] private float m_FallMultiplier = 20f;
     [SerializeField] private float m_JumpMultiplier = 20f;
@@ -24,7 +25,6 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool jumpMove = false;
     private bool longJumpMove = false;
     private float longJumpTime = 1f;
-    private int nbrJump = 0;
     private bool playerOnTheGround = true;
     private bool keyPressed = false;
     public LayerMask whatIsGrounded;
@@ -46,10 +46,8 @@ public class PlayerMovementsScript : MonoBehaviour
         
         if(Input.GetButtonDown("Jump")) {
             jumpMove = true;
-            nbrJump++;
         }
         
-        // Long Jump
         if(Input.GetButton("Jump")) {
             longJumpMove=true;
         }
@@ -67,17 +65,13 @@ public class PlayerMovementsScript : MonoBehaviour
             if(!playerOnTheGround) nbrDash++;
             targetVelocity.x = direction*m_MovementSpeed*m_DashForce*Time.fixedDeltaTime;
         }
-        
         if(jumpMove && playerOnTheGround) targetVelocity.y = m_JumpForce;
-        if(jumpMove && !playerOnTheGround && nbrJump<=m_NbrOfJumpMax) {
-            targetVelocity.y = Mathf.Abs(m_Rigidbody2D.velocity.y)+m_JumpForce;
-            m_Rigidbody2D.velocity = new Vector2(m_Rigidbody2D.velocity.x,0);
-        }
-        if(longJumpMove && !playerOnTheGround && longJumpTime>0) {
-            targetVelocity.y += 10f;
+        if(longJumpMove && !playerOnTheGround && longJumpTime>0f) {
+            targetVelocity.y = m_JumpForce*(longJumpTime+0.2f);
             longJumpTime -= Time.fixedDeltaTime;
         }
         targetVelocity.y += GravityMultiplier(Time.fixedDeltaTime);
+        
         
         m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         
@@ -99,7 +93,6 @@ public class PlayerMovementsScript : MonoBehaviour
             // If the collition is on the feet
             if(feetCollision) {                
                 playerOnTheGround = true;
-                nbrJump=0;
                 nbrDash=0;
                 longJumpTime=1f;
             }
