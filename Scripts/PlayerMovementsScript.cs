@@ -114,4 +114,13 @@ public class PlayerMovementsScript : MonoBehaviour
         if(m_Rigidbody2D.velocity.y<0) return Physics2D.gravity.y * (m_FallMultiplier - 1) * time;
         return 0;
     }
+    
+    public void stop() {
+        m_Rigidbody2D.velocity=Vector2.zero;
+        horizontalMove = false;
+        dashMove = false;
+        jumpMove = false;
+        longJumpMove = false;
+    }
+    
 }
