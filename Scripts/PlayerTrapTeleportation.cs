@@ -11,13 +11,20 @@ public class PlayerTrapTeleportation : MonoBehaviour
     {
         if(other.gameObject.tag=="Player") {
             StartCoroutine(Teleport());
+            StartCoroutine(AllowedPlayerToMove());
         }
     }
     
     IEnumerator Teleport() {
-        yield return new WaitForSeconds(0.2f);
-        player.transform.position = new Vector2(teleportation.transform.position.x,teleportation.transform.position.y);
         PlayerMovementsScript playerScript = player.GetComponent<PlayerMovementsScript>();
-        playerScript.stop();
+        playerScript.Stop();
+        yield return new WaitForSeconds(0.5f);
+        player.transform.position = new Vector2(teleportation.transform.position.x,teleportation.transform.position.y);
+    }
+    
+    IEnumerator AllowedPlayerToMove() {
+        yield return new WaitForSeconds(1f);
+        PlayerMovementsScript playerScript = player.GetComponent<PlayerMovementsScript>();
+        playerScript.AllowedToMove();
     }
 }

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerMovementsScript : MonoBehaviour
 {
-    [SerializeField] private Transform feetPos;
     [SerializeField] private float m_JumpForce = 50f;
     [SerializeField] private float m_LongJumpForce = 2f;
     [SerializeField] private float m_DashForce = 25f;
@@ -14,11 +13,14 @@ public class PlayerMovementsScript : MonoBehaviour
     [Range(0, 0.3f)] [SerializeField] private float m_MovementSmoothing = .05f;
     [Range(0, 1000f)] [SerializeField] private float m_MovementSpeed = 500f;
     
+
+    private Animator anim;
     private Rigidbody2D m_Rigidbody2D;
     private Vector2 m_Velocity = Vector2.zero;
     private float direction = 0f;
     private string gameDirection = "NO_MOVE";
     private bool horizontalMove = false;
+    private float lastHorizontalMove = 1f;
     private bool dashMove = false;
     private float lastDash = 0f;
     private int nbrDash = 0;
@@ -28,33 +30,50 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool playerOnTheGround = true;
     private bool keyPressed = false;
     public LayerMask whatIsGrounded;
+    private bool canMove = true;
     
     void Awake() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
     
     void Update()
     {
-        keyPressed = Input.anyKey;
-        direction = Input.GetAxisRaw("Horizontal");
         gameDirection="NO_MOVE";
+        direction = 0;
+        anim.SetBool("isRunning",false);
         
-        if(Input.GetButton("Horizontal")) {
-            gameDirection = direction==-1 ? "LEFT":"RIGHT";
-            horizontalMove = true;
+        if(canMove) {    
+            keyPressed = Input.anyKey;
+            direction = Input.GetAxisRaw("Horizontal");
+            
+            
+            if(Input.GetButton("Horizontal")) {
+                gameDirection = direction==-1 ? "LEFT":"RIGHT";
+                Flip(direction);
+                anim.SetBool("isRunning",true);
+                horizontalMove = true;
+                lastHorizontalMove = direction;
+            }
+            
+            if(Input.GetButtonDown("Jump")) {
+                anim.SetBool("isJumping",true);
+                jumpMove = true;
+            }
+            
+            if(Input.GetButton("Jump")) {
+                longJumpMove=true;
+            }
+    
+            if(Input.GetButton("Dash") && gameDirection!="NO_MOVE" && Time.time-lastDash>0.4f) {
+                dashMove=true;
+                lastDash=Time.time;
+            }
         }
-        
-        if(Input.GetButtonDown("Jump")) {
-            jumpMove = true;
-        }
-        
-        if(Input.GetButton("Jump")) {
-            longJumpMove=true;
-        }
-
-        if(Input.GetButton("Dash") && gameDirection!="NO_MOVE" && Time.time-lastDash>0.4f) {
-            dashMove=true;
-            lastDash=Time.time;
+        if(playerOnTheGround) {
+            anim.SetBool("takeoff",false);
+        } else {
+            anim.SetBool("takeoff",true);
         }
     }
     
@@ -65,13 +84,14 @@ public class PlayerMovementsScript : MonoBehaviour
             if(!playerOnTheGround) nbrDash++;
             targetVelocity.x = direction*m_MovementSpeed*m_DashForce*Time.fixedDeltaTime;
         }
-        if(jumpMove && playerOnTheGround) targetVelocity.y = m_JumpForce;
+        if(jumpMove && playerOnTheGround) {
+            targetVelocity.y = m_JumpForce;
+        }
         if(longJumpMove && !playerOnTheGround && longJumpTime>0f) {
             targetVelocity.y = m_JumpForce*(longJumpTime+0.2f);
             longJumpTime -= Time.fixedDeltaTime;
         }
         targetVelocity.y += GravityMultiplier(Time.fixedDeltaTime);
-        
         
         m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         
@@ -84,6 +104,7 @@ public class PlayerMovementsScript : MonoBehaviour
     void OnCollisionEnter2D(Collision2D col)
     {
         if(col.gameObject.layer == LayerMask.NameToLayer("ground")) {
+            /**
             bool feetCollision = false;
             // Search where is the collision on y
             foreach (ContactPoint2D missileHit in col.contacts)
@@ -91,11 +112,14 @@ public class PlayerMovementsScript : MonoBehaviour
                 feetCollision = col.otherCollider.transform.position.y-missileHit.point.y>0.4;
             }
             // If the collition is on the feet
-            if(feetCollision) {                
+            if(feetCollision) { 
+            **/               
                 playerOnTheGround = true;
+                anim.SetBool("isJumping",false);
+                anim.SetBool("takeoff",false);
                 nbrDash=0;
                 longJumpTime=1f;
-            }
+            //}
             
         }
     }
@@ -103,6 +127,15 @@ public class PlayerMovementsScript : MonoBehaviour
     void OnCollisionExit2D(Collision2D col)
     {
         playerOnTheGround = false;
+    }
+    
+    private void Flip(float d)
+    {
+        /**
+        Vector3 theScale = transform.localScale;
+        theScale.x = d*Mathf.Abs(theScale.x);
+        transform.localScale = theScale;
+        **/
     }
     
     /**
@@ -115,12 +148,16 @@ public class PlayerMovementsScript : MonoBehaviour
         return 0;
     }
     
-    public void stop() {
+    public void Stop() {
         m_Rigidbody2D.velocity=Vector2.zero;
         horizontalMove = false;
         dashMove = false;
         jumpMove = false;
         longJumpMove = false;
+        canMove = false;
     }
     
+    public void AllowedToMove() {
+        canMove = true;
+    }
 }
