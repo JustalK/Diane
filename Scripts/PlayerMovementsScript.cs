@@ -10,6 +10,8 @@ public class PlayerMovementsScript : MonoBehaviour
     [SerializeField] private float m_FallMultiplier = 20f;
     [SerializeField] private float m_JumpMultiplier = 20f;
     [SerializeField] private int m_NbrOfJumpMax = 2;
+    [SerializeField] private GameObject m_feetPosition;
+    [SerializeField] private GameObject dust;
     [Range(0, 0.3f)] [SerializeField] private float m_MovementSmoothing = .05f;
     [Range(0, 1000f)] [SerializeField] private float m_MovementSpeed = 500f;
     
@@ -54,6 +56,7 @@ public class PlayerMovementsScript : MonoBehaviour
                 Flip(direction);
                 Debug.Log("Horizontal");
                 anim.SetBool("isRunning",true);
+                Instantiate(dust,m_feetPosition.transform.position,Quaternion.identity);
                 horizontalMove = true;
                 lastHorizontalMove = direction;
             } else {
@@ -93,7 +96,9 @@ public class PlayerMovementsScript : MonoBehaviour
             longJumpTime -= Time.fixedDeltaTime;
         }
         targetVelocity.y += GravityMultiplier(Time.fixedDeltaTime);
-        
+        if(m_Rigidbody2D.velocity.y<0) {
+            anim.SetBool("falloff",true);
+        }
         m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         
         horizontalMove = false;
@@ -117,6 +122,7 @@ public class PlayerMovementsScript : MonoBehaviour
             **/               
                 Debug.Log("TOUCH GROUND");
                 anim.SetBool("isJumping",false);
+                anim.SetBool("falloff",false);
                 anim.SetBool("takeoff",false);
                 playerOnTheGround = true;
                 nbrDash=0;
