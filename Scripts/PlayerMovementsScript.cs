@@ -31,17 +31,18 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool keyPressed = false;
     public LayerMask whatIsGrounded;
     private bool canMove = true;
+    private SpriteRenderer sprite;
     
     void Awake() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        sprite = GetComponentInChildren<SpriteRenderer>();
     }
     
     void Update()
     {
         gameDirection="NO_MOVE";
         direction = 0;
-        anim.SetBool("isRunning",false);
         
         if(canMove) {    
             keyPressed = Input.anyKey;
@@ -51,29 +52,28 @@ public class PlayerMovementsScript : MonoBehaviour
             if(Input.GetButton("Horizontal")) {
                 gameDirection = direction==-1 ? "LEFT":"RIGHT";
                 Flip(direction);
+                Debug.Log("Horizontal");
                 anim.SetBool("isRunning",true);
                 horizontalMove = true;
                 lastHorizontalMove = direction;
+            } else {
+                anim.SetBool("isRunning",false);
             }
             
             if(Input.GetButtonDown("Jump")) {
-                anim.SetBool("isJumping",true);
                 jumpMove = true;
             }
             
             if(Input.GetButton("Jump")) {
+                anim.SetBool("isJumping",true);
                 longJumpMove=true;
+                if(!jumpMove) jumpMove = true;
             }
     
             if(Input.GetButton("Dash") && gameDirection!="NO_MOVE" && Time.time-lastDash>0.4f) {
                 dashMove=true;
                 lastDash=Time.time;
             }
-        }
-        if(playerOnTheGround) {
-            anim.SetBool("takeoff",false);
-        } else {
-            anim.SetBool("takeoff",true);
         }
     }
     
@@ -86,6 +86,7 @@ public class PlayerMovementsScript : MonoBehaviour
         }
         if(jumpMove && playerOnTheGround) {
             targetVelocity.y = m_JumpForce;
+            anim.SetBool("takeoff",true);
         }
         if(longJumpMove && !playerOnTheGround && longJumpTime>0f) {
             targetVelocity.y = m_JumpForce*(longJumpTime+0.2f);
@@ -114,9 +115,10 @@ public class PlayerMovementsScript : MonoBehaviour
             // If the collition is on the feet
             if(feetCollision) { 
             **/               
-                playerOnTheGround = true;
+                Debug.Log("TOUCH GROUND");
                 anim.SetBool("isJumping",false);
                 anim.SetBool("takeoff",false);
+                playerOnTheGround = true;
                 nbrDash=0;
                 longJumpTime=1f;
             //}
@@ -126,16 +128,13 @@ public class PlayerMovementsScript : MonoBehaviour
     
     void OnCollisionExit2D(Collision2D col)
     {
+        anim.SetBool("takeoff",true);
         playerOnTheGround = false;
     }
     
     private void Flip(float d)
     {
-        /**
-        Vector3 theScale = transform.localScale;
-        theScale.x = d*Mathf.Abs(theScale.x);
-        transform.localScale = theScale;
-        **/
+        sprite.flipX=d==1;
     }
     
     /**
