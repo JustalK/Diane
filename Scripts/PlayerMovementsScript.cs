@@ -30,6 +30,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private float lastDash = 0f;
     private int nbrDash = 0;
     private bool jumpMove = false;
+    private bool fallMove = false;
     private bool longJumpMove = false;
     private float longJumpTime = 1f;
     private bool playerOnTheGround = true;
@@ -77,7 +78,7 @@ public class PlayerMovementsScript : MonoBehaviour
             }
             
             if(Input.GetButton("Down")) {
-                Debug.Log("Down");
+                fallMove = true;
             }
     
             if(Input.GetButton("Dash") && gameDirection!="NO_MOVE" && Time.time-lastDash>0.4f) {
@@ -98,6 +99,9 @@ public class PlayerMovementsScript : MonoBehaviour
             targetVelocity.y = m_JumpForce;
             anim.SetBool("takeoff",true);
         }
+        if(fallMove) {
+            targetVelocity.y = -m_JumpForce;
+        }
         if(longJumpMove && !playerOnTheGround && longJumpTime>0f) {
             targetVelocity.y = m_JumpForce*(longJumpTime+0.2f);
             longJumpTime -= Time.fixedDeltaTime;
@@ -112,6 +116,7 @@ public class PlayerMovementsScript : MonoBehaviour
         dashMove = false;
         jumpMove = false;
         longJumpMove = false;
+        fallMove = false;
     }
     
     void OnCollisionEnter2D(Collision2D col)
@@ -134,6 +139,7 @@ public class PlayerMovementsScript : MonoBehaviour
                 playerOnTheGround = true;
                 nbrDash=0;
                 longJumpTime=1f;
+                fallMove = false;
             //}
             
         }
