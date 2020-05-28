@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class PlayerMovementsScript : MonoBehaviour
 {
@@ -12,11 +13,13 @@ public class PlayerMovementsScript : MonoBehaviour
     [SerializeField] private int m_NbrOfJumpMax = 2;
     [SerializeField] private GameObject m_feetPosition;
     [SerializeField] private GameObject dust;
+    [SerializeField] private CinemachineVirtualCamera vcam = null;
     [Range(0, 0.3f)] [SerializeField] private float m_MovementSmoothing = .05f;
     [Range(0, 1000f)] [SerializeField] private float m_MovementSpeed = 500f;
     
 
     private Animator anim;
+    private Animator animCamera;
     private Rigidbody2D m_Rigidbody2D;
     private Vector2 m_Velocity = Vector2.zero;
     private float direction = 0f;
@@ -39,6 +42,7 @@ public class PlayerMovementsScript : MonoBehaviour
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sprite = GetComponentInChildren<SpriteRenderer>();
+        animCamera = vcam.GetComponent<Animator>();
     }
     
     void Update()
@@ -54,9 +58,8 @@ public class PlayerMovementsScript : MonoBehaviour
             if(Input.GetButton("Horizontal")) {
                 gameDirection = direction==-1 ? "LEFT":"RIGHT";
                 Flip(direction);
-                Debug.Log("Horizontal");
                 anim.SetBool("isRunning",true);
-                Instantiate(dust,m_feetPosition.transform.position,Quaternion.identity);
+                if(playerOnTheGround) Instantiate(dust,m_feetPosition.transform.position,Quaternion.identity);
                 horizontalMove = true;
                 lastHorizontalMove = direction;
             } else {
@@ -71,6 +74,10 @@ public class PlayerMovementsScript : MonoBehaviour
                 anim.SetBool("isJumping",true);
                 longJumpMove=true;
                 if(!jumpMove) jumpMove = true;
+            }
+            
+            if(Input.GetButton("Down")) {
+                Debug.Log("Down");
             }
     
             if(Input.GetButton("Dash") && gameDirection!="NO_MOVE" && Time.time-lastDash>0.4f) {
@@ -120,7 +127,7 @@ public class PlayerMovementsScript : MonoBehaviour
             // If the collition is on the feet
             if(feetCollision) { 
             **/               
-                Debug.Log("TOUCH GROUND");
+                animCamera.SetTrigger("shake");
                 anim.SetBool("isJumping",false);
                 anim.SetBool("falloff",false);
                 anim.SetBool("takeoff",false);
