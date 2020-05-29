@@ -40,11 +40,14 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool canMove = true;
     private SpriteRenderer sprite;
     
+    private CapsuleCollider2D capsule;
+    
     void Awake() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sprite = GetComponentInChildren<SpriteRenderer>();
         animCamera = vcam.GetComponent<Animator>();
+        capsule = GetComponent<CapsuleCollider2D>(); 
     }
     
     void Update()
@@ -61,7 +64,7 @@ public class PlayerMovementsScript : MonoBehaviour
                 gameDirection = direction==-1 ? "LEFT":"RIGHT";
                 Flip(direction);
                 anim.SetBool("isRunning",true);
-                if(playerOnTheGround) Instantiate(dust,m_feetPosition.transform.position,Quaternion.identity);
+                //if(playerOnTheGround) Instantiate(dust,m_feetPosition.transform.position,Quaternion.identity);
                 horizontalMove = true;
                 lastHorizontalMove = direction;
             } else {
@@ -81,7 +84,7 @@ public class PlayerMovementsScript : MonoBehaviour
             if(Input.GetButton("Down")) {
                 fallMove = true;
             }
-    
+
             if(Input.GetButton("Dash") && gameDirection!="NO_MOVE" && Time.time-lastDash>0.4f) {
                 dashMove=true;
                 lastDash=Time.time;
@@ -93,6 +96,7 @@ public class PlayerMovementsScript : MonoBehaviour
         Vector2 targetVelocity = new Vector2(direction * m_MovementSpeed * Time.fixedDeltaTime, m_Rigidbody2D.velocity.y);
         
         if(dashMove && nbrDash<2) {
+            anim.SetTrigger("isDashing");
             if(!playerOnTheGround) nbrDash++;
             targetVelocity.x = direction*m_MovementSpeed*m_DashForce*Time.fixedDeltaTime;
         }
@@ -113,7 +117,6 @@ public class PlayerMovementsScript : MonoBehaviour
             takeOff=true;
             anim.SetBool("falloff",true);
         }
-        Debug.Log(m_Rigidbody2D.velocity.y);
         m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         
         horizontalMove = false;
@@ -126,12 +129,14 @@ public class PlayerMovementsScript : MonoBehaviour
     void OnCollisionEnter2D(Collision2D col)
     {
         if(takeOff) {
+            
             if(col.gameObject.layer == LayerMask.NameToLayer("ground")) {
                 bool feetCollision = false;
                 // Search where is the collision on y
+                
                 foreach (ContactPoint2D missileHit in col.contacts)
                 {
-                    feetCollision = col.otherCollider.transform.position.y-missileHit.point.y>0.4;
+                    feetCollision = missileHit.normal.y==1f;
                 }
                 // If the collition is on the feet
                 if(feetCollision) {                
