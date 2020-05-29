@@ -31,6 +31,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private int nbrDash = 0;
     private bool jumpMove = false;
     private bool fallMove = false;
+    private bool takeOff = false;
     private bool longJumpMove = false;
     private float longJumpTime = 1f;
     private bool playerOnTheGround = true;
@@ -97,6 +98,7 @@ public class PlayerMovementsScript : MonoBehaviour
         }
         if(jumpMove && playerOnTheGround) {
             targetVelocity.y = m_JumpForce;
+            takeOff=true;
             anim.SetBool("takeoff",true);
         }
         if(fallMove) {
@@ -107,9 +109,11 @@ public class PlayerMovementsScript : MonoBehaviour
             longJumpTime -= Time.fixedDeltaTime;
         }
         targetVelocity.y += GravityMultiplier(Time.fixedDeltaTime);
-        if(m_Rigidbody2D.velocity.y<0) {
+        if(m_Rigidbody2D.velocity.y<-5) {
+            takeOff=true;
             anim.SetBool("falloff",true);
         }
+        Debug.Log(m_Rigidbody2D.velocity.y);
         m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         
         horizontalMove = false;
@@ -121,34 +125,37 @@ public class PlayerMovementsScript : MonoBehaviour
     
     void OnCollisionEnter2D(Collision2D col)
     {
-        if(col.gameObject.layer == LayerMask.NameToLayer("ground")) {
-            /**
-            bool feetCollision = false;
-            // Search where is the collision on y
-            foreach (ContactPoint2D missileHit in col.contacts)
-            {
-                feetCollision = col.otherCollider.transform.position.y-missileHit.point.y>0.4;
+        if(takeOff) {
+            if(col.gameObject.layer == LayerMask.NameToLayer("ground")) {
+                bool feetCollision = false;
+                // Search where is the collision on y
+                foreach (ContactPoint2D missileHit in col.contacts)
+                {
+                    feetCollision = col.otherCollider.transform.position.y-missileHit.point.y>0.4;
+                }
+                // If the collition is on the feet
+                if(feetCollision) {                
+                    animCamera.SetTrigger("shake");
+                    anim.SetBool("isJumping",false);
+                    anim.SetBool("falloff",false);
+                    anim.SetBool("takeoff",false);
+                    playerOnTheGround = true;
+                    nbrDash=0;
+                    longJumpTime=1f;
+                    fallMove = false;
+                    takeOff=false;
+                }
+                
             }
-            // If the collition is on the feet
-            if(feetCollision) { 
-            **/               
-                animCamera.SetTrigger("shake");
-                anim.SetBool("isJumping",false);
-                anim.SetBool("falloff",false);
-                anim.SetBool("takeoff",false);
-                playerOnTheGround = true;
-                nbrDash=0;
-                longJumpTime=1f;
-                fallMove = false;
-            //}
-            
         }
     }
     
     void OnCollisionExit2D(Collision2D col)
     {
-        anim.SetBool("takeoff",true);
-        playerOnTheGround = false;
+        if(takeOff) {
+            anim.SetBool("takeoff",true);
+            playerOnTheGround = false;
+        }
     }
     
     private void Flip(float d)
