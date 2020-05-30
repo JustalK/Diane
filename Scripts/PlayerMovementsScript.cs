@@ -31,7 +31,6 @@ public class PlayerMovementsScript : MonoBehaviour
     private int nbrDash = 0;
     private bool jumpMove = false;
     private bool fallMove = false;
-    private bool takeOff = false;
     private bool longJumpMove = false;
     private float longJumpTime = 1f;
     private bool playerOnTheGround = true;
@@ -63,7 +62,7 @@ public class PlayerMovementsScript : MonoBehaviour
             if(Input.GetButton("Horizontal")) {
                 gameDirection = direction==-1 ? "LEFT":"RIGHT";
                 Flip(direction);
-                anim.SetBool("isRunning",true);
+                if(playerOnTheGround) anim.SetBool("isRunning",true);
                 //if(playerOnTheGround) Instantiate(dust,m_feetPosition.transform.position,Quaternion.identity);
                 horizontalMove = true;
                 lastHorizontalMove = direction;
@@ -102,19 +101,20 @@ public class PlayerMovementsScript : MonoBehaviour
         }
         if(jumpMove && playerOnTheGround) {
             targetVelocity.y = m_JumpForce;
-            takeOff=true;
             anim.SetBool("takeoff",true);
         }
-        if(fallMove) {
+        if(fallMove && !playerOnTheGround) {
             targetVelocity.y = -m_JumpForce;
         }
         if(longJumpMove && !playerOnTheGround && longJumpTime>0f) {
             targetVelocity.y = m_JumpForce*(longJumpTime+0.2f);
             longJumpTime -= Time.fixedDeltaTime;
+            anim.SetBool("newJump",true);
+            anim.SetBool("falloff",false);
         }
         targetVelocity.y += GravityMultiplier(Time.fixedDeltaTime);
-        if(m_Rigidbody2D.velocity.y<-5) {
-            takeOff=true;
+        if(m_Rigidbody2D.velocity.y<0) {
+            anim.SetBool("newJump",false);
             anim.SetBool("falloff",true);
         }
         m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
@@ -128,39 +128,25 @@ public class PlayerMovementsScript : MonoBehaviour
     
     void OnCollisionEnter2D(Collision2D col)
     {
-        if(takeOff) {
-            
-            if(col.gameObject.layer == LayerMask.NameToLayer("ground")) {
-                bool feetCollision = false;
-                // Search where is the collision on y
-                
-                foreach (ContactPoint2D missileHit in col.contacts)
-                {
-                    feetCollision = missileHit.normal.y==1f;
-                }
-                // If the collition is on the feet
-                if(feetCollision) {                
-                    animCamera.SetTrigger("shake");
-                    anim.SetBool("isJumping",false);
-                    anim.SetBool("falloff",false);
-                    anim.SetBool("takeoff",false);
-                    playerOnTheGround = true;
-                    nbrDash=0;
-                    longJumpTime=1f;
-                    fallMove = false;
-                    takeOff=false;
-                }
-                
-            }
-        }
+        if(col.gameObject.layer != LayerMask.NameToLayer("ground")) return;
+    
+        animCamera.SetTrigger("shake");
+        anim.SetBool("isJumping",false);
+        anim.SetBool("falloff",false);
+        anim.SetBool("takeoff",false);
+        anim.SetBool("newJump",false);
+        playerOnTheGround = true;
+        nbrDash=0;
+        longJumpTime=1f;
+        fallMove = false;
     }
     
     void OnCollisionExit2D(Collision2D col)
     {
-        if(takeOff) {
-            anim.SetBool("takeoff",true);
-            playerOnTheGround = false;
-        }
+        if(col.gameObject.layer != LayerMask.NameToLayer("ground")) return;
+        
+        anim.SetBool("takeoff",true);
+        playerOnTheGround = false;
     }
     
     private void Flip(float d)
@@ -179,12 +165,16 @@ public class PlayerMovementsScript : MonoBehaviour
     }
     
     public void Stop() {
+        canMove = false;
+        anim.SetBool("isJumping",false);
+        anim.SetBool("falloff",false);
+        anim.SetBool("takeoff",false);
+        anim.SetBool("isRunning",false);
         m_Rigidbody2D.velocity=Vector2.zero;
         horizontalMove = false;
         dashMove = false;
         jumpMove = false;
         longJumpMove = false;
-        canMove = false;
     }
     
     public void AllowedToMove() {
