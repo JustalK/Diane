@@ -7,12 +7,14 @@ public class PlayerTrapTeleportation : MonoBehaviour
     public Transform teleportation;
     public GameObject player;
     
-    void OnTriggerEnter2D(Collider2D other)
+    void OnCollisionEnter2D(Collision2D col)
     {
-        if(other.gameObject.tag=="Player") {
-            StartCoroutine(Teleport());
-            StartCoroutine(AllowedPlayerToMove());
-        }
+        Debug.Log("COLLISION");
+        if(col.gameObject.layer != LayerMask.NameToLayer("Player")) return;
+
+        StartCoroutine(Teleport());
+        StartCoroutine(AllowedPlayerToMove());
+
     }
     
     IEnumerator Teleport() {
