@@ -151,7 +151,7 @@ public class PlayerMovementsScript : MonoBehaviour
     
     private void Flip(float d)
     {
-        sprite.flipX=d==1;
+        sprite.flipX=d==-1;
     }
     
     /**
