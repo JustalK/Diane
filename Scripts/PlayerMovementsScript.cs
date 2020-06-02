@@ -58,8 +58,9 @@ public class PlayerMovementsScript : MonoBehaviour
             keyPressed = Input.anyKey;
             direction = Input.GetAxisRaw("Horizontal");
             
-            
-            if(Input.GetButton("Horizontal")) {
+            // If the user press horizontal and only one key at the time
+            if(Input.GetButton("Horizontal") && direction!=0) {
+                Debug.Log(Input.GetButton("Horizontal"));
                 gameDirection = direction==-1 ? "LEFT":"RIGHT";
                 Flip(direction);
                 if(playerOnTheGround) anim.SetBool("isRunning",true);
@@ -68,10 +69,6 @@ public class PlayerMovementsScript : MonoBehaviour
                 lastHorizontalMove = direction;
             } else {
                 anim.SetBool("isRunning",false);
-            }
-            
-            if(Input.GetButtonDown("Jump")) {
-                jumpMove = true;
             }
             
             if(Input.GetButton("Jump")) {
