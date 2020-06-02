@@ -41,6 +41,8 @@ public class PlayerMovementsScript : MonoBehaviour
     
     private CapsuleCollider2D capsule;
     
+    private bool isTooHigh=false;
+    
     void Awake() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
@@ -51,7 +53,6 @@ public class PlayerMovementsScript : MonoBehaviour
     
     void Update()
     {
-        gameDirection="NO_MOVE";
         direction = 0;
         
         if(canMove) {    
@@ -60,8 +61,6 @@ public class PlayerMovementsScript : MonoBehaviour
             
             // If the user press horizontal and only one key at the time
             if(Input.GetButton("Horizontal") && direction!=0) {
-                Debug.Log(Input.GetButton("Horizontal"));
-                gameDirection = direction==-1 ? "LEFT":"RIGHT";
                 Flip(direction);
                 if(playerOnTheGround) anim.SetBool("isRunning",true);
                 //if(playerOnTheGround) Instantiate(dust,m_feetPosition.transform.position,Quaternion.identity);
@@ -81,7 +80,7 @@ public class PlayerMovementsScript : MonoBehaviour
                 fallMove = true;
             }
 
-            if(Input.GetButton("Dash") && gameDirection!="NO_MOVE" && Time.time-lastDash>0.4f) {
+            if(Input.GetButton("Dash") && Time.time-lastDash>0.4f) {
                 dashMove=true;
                 lastDash=Time.time;
             }
@@ -100,9 +99,6 @@ public class PlayerMovementsScript : MonoBehaviour
             targetVelocity.y = m_JumpForce;
             anim.SetBool("takeoff",true);
         }
-        if(fallMove && !playerOnTheGround) {
-            targetVelocity.y = -m_JumpForce;
-        }
         if(longJumpMove && !playerOnTheGround && longJumpTime>0f) {
             targetVelocity.y = m_JumpForce*(longJumpTime+0.2f);
             longJumpTime -= Time.fixedDeltaTime;
@@ -110,10 +106,9 @@ public class PlayerMovementsScript : MonoBehaviour
             anim.SetBool("falloff",false);
         }
         targetVelocity.y += GravityMultiplier(Time.fixedDeltaTime);
-        if(m_Rigidbody2D.velocity.y<0) {
-            anim.SetBool("newJump",false);
-            anim.SetBool("falloff",true);
-        }
+        
+        if(isPlayerFalling()) playerFalling(targetVelocity);
+        
         m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         
         horizontalMove = false;
@@ -127,7 +122,7 @@ public class PlayerMovementsScript : MonoBehaviour
     {
         if(col.gameObject.layer != LayerMask.NameToLayer("ground")) return;
     
-        animCamera.SetTrigger("shake");
+        if(isTooHigh) animCamera.SetTrigger("shake");
         anim.SetBool("isJumping",false);
         anim.SetBool("falloff",false);
         anim.SetBool("takeoff",false);
@@ -136,6 +131,7 @@ public class PlayerMovementsScript : MonoBehaviour
         nbrDash=0;
         longJumpTime=1f;
         fallMove = false;
+        isTooHigh = false;
     }
     
     void OnCollisionExit2D(Collision2D col)
@@ -144,6 +140,23 @@ public class PlayerMovementsScript : MonoBehaviour
         
         anim.SetBool("takeoff",true);
         playerOnTheGround = false;
+    }
+    
+    /**
+     * The player is falling 
+     */
+    public void playerFalling(Vector2 targetVelocity) {
+        if(fallMove) targetVelocity.y *= 1.2f;
+        if(m_Rigidbody2D.velocity.y<-20f) isTooHigh=true;
+        anim.SetBool("newJump",false);
+        anim.SetBool("falloff",true);
+    }
+    
+    /**
+     * Is the player falling ?
+     */
+    public bool isPlayerFalling() {
+        return m_Rigidbody2D.velocity.y<0 || (fallMove && !playerOnTheGround);
     }
     
     private void Flip(float d)
