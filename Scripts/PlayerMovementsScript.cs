@@ -32,18 +32,18 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool longJumpMove = false;
     private float longJumpTime = 1f;
     private bool playerOnTheGround = true;
-    private bool keyPressed = false;
     public LayerMask whatIsGrounded;
     private bool canMove = true;
     private SpriteRenderer sprite;
     
-    private CapsuleCollider2D capsule;
-    
     private bool isTooHigh=false;
+    private bool isJumping=false;
+    
     private bool keyJump=false;
     private bool keyFall=false;
     private bool keyLeft=false;
     private bool keyRight=false;
+    private bool keyDash=false;
     
     private float timeInAir=1f;
     
@@ -52,7 +52,6 @@ public class PlayerMovementsScript : MonoBehaviour
         anim = GetComponent<Animator>();
         sprite = GetComponentInChildren<SpriteRenderer>();
         animCamera = vcam.GetComponent<Animator>();
-        capsule = GetComponent<CapsuleCollider2D>(); 
     }
     
     void Update()
@@ -60,7 +59,6 @@ public class PlayerMovementsScript : MonoBehaviour
         direction = 0;
         
         if(canMove) {    
-            keyPressed = Input.anyKey;
             direction = Input.GetAxisRaw("Horizontal");
             
             // If the user press horizontal and only one key at the time
@@ -78,9 +76,8 @@ public class PlayerMovementsScript : MonoBehaviour
                 keyFall = true;
             }
 
-            if(Input.GetButton("Dash") && Time.time-lastDash>0.4f) {
-                dashMove=true;
-                lastDash=Time.time;
+            if(Input.GetButton("Dash")) {
+                keyDash=true;
             }
         }
         
@@ -89,16 +86,12 @@ public class PlayerMovementsScript : MonoBehaviour
     
     void FixedUpdate() {
         Vector2 targetVelocity = new Vector2(0, m_Rigidbody2D.velocity.y);
-        
-        if(dashMove && nbrDash<2) {
-            anim.SetTrigger("isDashing");
-            if(!playerOnTheGround) nbrDash++;
-            targetVelocity.x = direction*m_MovementSpeed*m_DashForce*Time.fixedDeltaTime;
-        }
-        if(isPlayerMovingHorizontal()) targetVelocity = playerMovingHorizontal(targetVelocity);
-        if(isPlayerTakingOff()) targetVelocity = playerTakingOff(targetVelocity);
-        if(isPlayerJumping()) targetVelocity = playerJumping(targetVelocity);
-        if(isPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
+
+        if(canPlayerMovingHorizontal()) targetVelocity = playerMovingHorizontal(targetVelocity);
+        if(canPlayerDashing()) targetVelocity = playerDashing(targetVelocity);
+        if(canPlayerTakingOff()) targetVelocity = playerTakingOff(targetVelocity);
+        //if(canPlayerJumping()) targetVelocity = playerJumping(targetVelocity);
+        //if(canPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
         
         m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         
@@ -110,6 +103,7 @@ public class PlayerMovementsScript : MonoBehaviour
         keyLeft = false;
         keyFall = false;
         keyJump = false;
+        keyDash = false;
     }
 
     private void playerIdle() {
@@ -129,9 +123,20 @@ public class PlayerMovementsScript : MonoBehaviour
         return targetVelocity;
     }
     
+    private Vector2 playerDashing(Vector2 targetVelocity) {
+        anim.SetTrigger("isDashing");
+        if(!playerOnTheGround) nbrDash++;
+        targetVelocity.x = direction*m_MovementSpeed*m_DashForce*Time.fixedDeltaTime;
+        lastDash=Time.time;
+        
+        return targetVelocity;
+    }
+    
     // The player is taking off
     private Vector2 playerTakingOff(Vector2 targetVelocity) {
         targetVelocity.y = m_JumpForce;
+        isJumping=true;
+        Debug.Log(targetVelocity.y);
         
         anim.SetBool("takeoff",true);
         return targetVelocity;
@@ -162,22 +167,26 @@ public class PlayerMovementsScript : MonoBehaviour
     }
     
     // Is the player moving left or right ?
-    private bool isPlayerMovingHorizontal() {
+    private bool canPlayerMovingHorizontal() {
         return (keyRight || keyLeft) && !(keyRight && keyLeft);
     }
     
+    private bool canPlayerDashing() {
+        return ((keyDash && keyRight) || (keyDash && keyLeft)) && nbrDash<2 && Time.time-lastDash>0.4f;
+    }
+    
     // Is the player taking off ?
-    private bool isPlayerTakingOff() {
-        return playerOnTheGround && keyJump;
+    private bool canPlayerTakingOff() {
+        return playerOnTheGround && keyJump && !isJumping;
     }
     
     // Is the player jumping ?
-    private bool isPlayerJumping() {
+    private bool canPlayerJumping() {
         return !playerOnTheGround && keyJump && timeInAir<=1f;
     }
     
     // Is the player falling ?
-    private bool isPlayerFalling() {
+    private bool canPlayerFalling() {
         return m_Rigidbody2D.velocity.y<0 || (keyFall && !playerOnTheGround);
     }
     
@@ -225,6 +234,7 @@ public class PlayerMovementsScript : MonoBehaviour
         longJumpTime=1f;
         
         isTooHigh = false;
+        isJumping = false;
         timeInAir = 1f;
         frameResetControl();
     }
