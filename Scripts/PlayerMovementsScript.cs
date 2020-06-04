@@ -5,7 +5,7 @@ using Cinemachine;
 
 public class PlayerMovementsScript : MonoBehaviour
 {
-    [SerializeField] private float m_JumpForce = 50f;
+    [SerializeField] private float m_JumpForce = 10f;
     [SerializeField] private float m_LongJumpForce = 2f;
     [SerializeField] private float m_DashForce = 25f;
     [SerializeField] private float m_FallMultiplier = 20f;
@@ -14,8 +14,8 @@ public class PlayerMovementsScript : MonoBehaviour
     [SerializeField] private GameObject m_feetPosition;
     [SerializeField] private GameObject dust;
     [SerializeField] private CinemachineVirtualCamera vcam = null;
-    [Range(0, 0.3f)] [SerializeField] private float m_MovementSmoothing = .05f;
-    [Range(0, 1000f)] [SerializeField] private float m_MovementSpeed = 500f;
+    [SerializeField] private float m_MovementSmoothing = 0.05f;
+    [Range(0, 1000f)] [SerializeField] private float m_MovementSpeed = 800f;
     
 
     private Animator anim;
@@ -45,7 +45,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool keyRight=false;
     private bool keyDash=false;
     
-    private float timeInAir=1f;
+    private float timeInAir=0.05f;
     
     void Awake() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
@@ -89,11 +89,11 @@ public class PlayerMovementsScript : MonoBehaviour
 
         if(canPlayerMovingHorizontal()) targetVelocity = playerMovingHorizontal(targetVelocity);
         if(canPlayerDashing()) targetVelocity = playerDashing(targetVelocity);
+        if(canPlayerJumping()) targetVelocity = playerJumping(targetVelocity);
         if(canPlayerTakingOff()) targetVelocity = playerTakingOff(targetVelocity);
-        //if(canPlayerJumping()) targetVelocity = playerJumping(targetVelocity);
-        //if(canPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
+        if(canPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
         
-        m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
+        //m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         
         frameResetControl();
     }
@@ -134,9 +134,11 @@ public class PlayerMovementsScript : MonoBehaviour
     
     // The player is taking off
     private Vector2 playerTakingOff(Vector2 targetVelocity) {
-        targetVelocity.y = m_JumpForce;
+        m_Rigidbody2D.gravityScale = 0;
+        m_Rigidbody2D.AddForce(new Vector2(0,3f),ForceMode2D.Impulse);
         isJumping=true;
-        Debug.Log(targetVelocity.y);
+        
+        Debug.Log("TAKE OFF");
         
         anim.SetBool("takeoff",true);
         return targetVelocity;
@@ -144,9 +146,13 @@ public class PlayerMovementsScript : MonoBehaviour
     
     // The player is jumping
     private Vector2 playerJumping(Vector2 targetVelocity) {
-        targetVelocity.y = targetVelocity.y-Physics2D.gravity.y*Time.fixedDeltaTime;
+        //targetVelocity.y = m_Rigidbody2D.velocity.y+0.5f;
+        m_Rigidbody2D.gravityScale = 0;
+        m_Rigidbody2D.AddForce(new Vector2(0,3f),ForceMode2D.Impulse);
         timeInAir-=Time.fixedDeltaTime;
         anim.SetBool("isJumping",true);
+        
+        Debug.Log("JUMP");
         
         return targetVelocity;
     }
@@ -155,6 +161,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private Vector2 playerFalling(Vector2 targetVelocity) {
         if(keyFall) targetVelocity.y *= 1.2f;
         if(m_Rigidbody2D.velocity.y<-20f) isTooHigh=true;
+        m_Rigidbody2D.gravityScale = 3;
         
         anim.SetBool("newJump",false);
         anim.SetBool("falloff",true);
@@ -182,12 +189,12 @@ public class PlayerMovementsScript : MonoBehaviour
     
     // Is the player jumping ?
     private bool canPlayerJumping() {
-        return !playerOnTheGround && keyJump && timeInAir<=1f;
+        return !playerOnTheGround && keyJump && timeInAir>=0f && isJumping;
     }
     
     // Is the player falling ?
     private bool canPlayerFalling() {
-        return m_Rigidbody2D.velocity.y<0 || (keyFall && !playerOnTheGround);
+        return (!keyJump && isJumping) || (timeInAir<=0f && isJumping) || (keyFall && !playerOnTheGround);
     }
     
     private void Flip(float d)
@@ -235,7 +242,7 @@ public class PlayerMovementsScript : MonoBehaviour
         
         isTooHigh = false;
         isJumping = false;
-        timeInAir = 1f;
+        timeInAir = 0.05f;
         frameResetControl();
     }
     

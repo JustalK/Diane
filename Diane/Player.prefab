@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61153aac08414019495d7c77456a7b8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_JumpForce: 20
+  m_JumpForce: 5
   m_LongJumpForce: 10
   m_DashForce: 30
   m_FallMultiplier: 20
@@ -159,8 +159,8 @@ MonoBehaviour:
   m_feetPosition: {fileID: 4209682080587019595}
   dust: {fileID: 4849982336866425583, guid: cc21e4b4e2d96a464a7c14d4a5ef74a3, type: 3}
   vcam: {fileID: 6575911077000422863, guid: 7ca862bce5fdacc78bd33a1584148f30, type: 3}
-  m_MovementSmoothing: 0.1
-  m_MovementSpeed: 500
+  m_MovementSmoothing: 0.05
+  m_MovementSpeed: 800
   whatIsGrounded:
     serializedVersion: 2
     m_Bits: 256
