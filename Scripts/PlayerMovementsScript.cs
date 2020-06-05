@@ -39,6 +39,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool isTooHigh=false;
     private bool isJumping=false;
     private bool isTakingOff=false;
+    private bool isFalling=false;
     
     private bool keyJump=false;
     private bool keyFall=false;
@@ -145,8 +146,6 @@ public class PlayerMovementsScript : MonoBehaviour
         isJumping=true;
         isTakingOff=true;
         
-        Debug.Log("TAKING OFF");
-        
         anim.SetBool("takeoff",false);
         anim.SetBool("isJumping",true);
         return targetVelocity;
@@ -155,7 +154,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private void playerJumping() {
         isJumping=true;
         isTakingOff=false;
-        Debug.Log("JUMPING");
+        timeInAir-=Time.fixedDeltaTime;
         
         anim.SetBool("takeoff",false);
         anim.SetBool("isJumping",true);
@@ -165,11 +164,12 @@ public class PlayerMovementsScript : MonoBehaviour
     private Vector2 playerFalling(Vector2 targetVelocity) {
         if(keyFall) targetVelocity.y *= 1.2f;
         if(m_Rigidbody2D.velocity.y<-20f) isTooHigh=true;
+        isFalling = true;
         
-        targetVelocity.y = targetVelocity.y - 6f;
+        targetVelocity.y = targetVelocity.y - 4f;
         
-        Debug.Log("FALLING");
-        
+        anim.SetBool("takeoff",false);
+        anim.SetBool("isJumping",false);
         anim.SetBool("newJump",false);
         anim.SetBool("falloff",true);
         
@@ -177,7 +177,7 @@ public class PlayerMovementsScript : MonoBehaviour
     }
     
     private bool isPlayerIdle() {
-        return !keyRight && !keyLeft && !keyJump && !keyFall && !isJumping; 
+        return !keyRight && !keyLeft && !keyJump && !keyFall && !isJumping && !isFalling; 
     }
     
     // Is the player moving left or right ?
@@ -196,12 +196,12 @@ public class PlayerMovementsScript : MonoBehaviour
     
     // Is the player jumping ?
     private bool canPlayerJumping() {
-        return isTakingOff;
+        return !isFalling && isJumping && keyJump && timeInAir>0;
     }
     
     // Is the player falling ?
     private bool canPlayerFalling() {
-        return (!keyJump && isJumping) || (!isJumping && !playerOnTheGround);
+        return timeInAir<=0 || (!keyJump && isJumping) || (!isJumping && !playerOnTheGround);
     }
     
     private void Flip(float d)
@@ -238,6 +238,15 @@ public class PlayerMovementsScript : MonoBehaviour
     {
         if(col.gameObject.layer != LayerMask.NameToLayer("ground")) return;
     
+        bool isContactVertical = true;
+        foreach (ContactPoint2D contact in col.contacts)
+        {
+            if(contact.normal.x!=0 && contact.normal.y!=1) isContactVertical=false;
+        }
+        
+        // if the contact is not vertical to the floor
+        if(!isContactVertical) return;
+        
         if(isTooHigh) animCamera.SetTrigger("shake");
         anim.SetBool("isJumping",false);
         anim.SetBool("falloff",false);
@@ -249,6 +258,7 @@ public class PlayerMovementsScript : MonoBehaviour
         
         isTooHigh = false;
         isJumping = false;
+        isFalling = false;
         timeInAir = 0.25f;
         resetControl();
     }
