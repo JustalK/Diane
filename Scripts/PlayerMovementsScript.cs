@@ -38,14 +38,16 @@ public class PlayerMovementsScript : MonoBehaviour
     
     private bool isTooHigh=false;
     private bool isJumping=false;
+    private bool isTakingOff=false;
     
     private bool keyJump=false;
     private bool keyFall=false;
     private bool keyLeft=false;
     private bool keyRight=false;
     private bool keyDash=false;
+    private bool keyUpdate=false;
     
-    private float timeInAir=0.05f;
+    private float timeInAir=0.1f;
     
     void Awake() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
@@ -56,6 +58,7 @@ public class PlayerMovementsScript : MonoBehaviour
     
     void Update()
     {
+        resetControl();
         direction = 0;
         
         if(canMove) {    
@@ -82,28 +85,30 @@ public class PlayerMovementsScript : MonoBehaviour
         }
         
         if(isPlayerIdle()) playerIdle();
+        keyUpdate = true;
     }
     
-    void FixedUpdate() {
-        Vector2 targetVelocity = new Vector2(0, m_Rigidbody2D.velocity.y);
-
-        if(canPlayerMovingHorizontal()) targetVelocity = playerMovingHorizontal(targetVelocity);
-        if(canPlayerDashing()) targetVelocity = playerDashing(targetVelocity);
-        if(canPlayerJumping()) targetVelocity = playerJumping(targetVelocity);
-        if(canPlayerTakingOff()) targetVelocity = playerTakingOff(targetVelocity);
-        if(canPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
-        
-        //m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
-        
-        frameResetControl();
-    }
-    
-    private void frameResetControl() {
+    private void resetControl() {
         keyRight = false;
         keyLeft = false;
         keyFall = false;
         keyJump = false;
         keyDash = false;
+    }
+    
+    void FixedUpdate() {
+        if(keyUpdate) {
+            Vector2 targetVelocity = new Vector2(0, m_Rigidbody2D.velocity.y);
+
+            if(canPlayerMovingHorizontal()) targetVelocity = playerMovingHorizontal(targetVelocity);
+            //if(canPlayerDashing()) targetVelocity = playerDashing(targetVelocity);
+            if(canPlayerJumping()) playerJumping();
+            if(canPlayerTakingOff()) targetVelocity = playerTakingOff(targetVelocity);
+            if(canPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
+        
+            m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
+        }
+        keyUpdate=false;
     }
 
     private void playerIdle() {
@@ -111,6 +116,8 @@ public class PlayerMovementsScript : MonoBehaviour
         anim.SetBool("newJump",false);
         anim.SetBool("falloff",false);
         anim.SetBool("isRunning",false);
+        anim.SetBool("isJumping",false);
+        m_Rigidbody2D.velocity = new Vector2(0,0);
     }
     
     private Vector2 playerMovingHorizontal(Vector2 targetVelocity) {
@@ -132,36 +139,36 @@ public class PlayerMovementsScript : MonoBehaviour
         return targetVelocity;
     }
     
-    // The player is taking off
+    // The player is jumping
     private Vector2 playerTakingOff(Vector2 targetVelocity) {
-        m_Rigidbody2D.gravityScale = 0;
-        m_Rigidbody2D.AddForce(new Vector2(0,3f),ForceMode2D.Impulse);
+        m_Rigidbody2D.AddForce(new Vector2(0,20f),ForceMode2D.Impulse);
         isJumping=true;
+        isTakingOff=true;
         
-        Debug.Log("TAKE OFF");
+        Debug.Log("TAKING OFF");
         
-        anim.SetBool("takeoff",true);
+        anim.SetBool("takeoff",false);
+        anim.SetBool("isJumping",true);
         return targetVelocity;
     }
     
-    // The player is jumping
-    private Vector2 playerJumping(Vector2 targetVelocity) {
-        //targetVelocity.y = m_Rigidbody2D.velocity.y+0.5f;
-        m_Rigidbody2D.gravityScale = 0;
-        m_Rigidbody2D.AddForce(new Vector2(0,3f),ForceMode2D.Impulse);
-        timeInAir-=Time.fixedDeltaTime;
+    private void playerJumping() {
+        isJumping=true;
+        isTakingOff=false;
+        Debug.Log("JUMPING");
+        
+        anim.SetBool("takeoff",false);
         anim.SetBool("isJumping",true);
-        
-        Debug.Log("JUMP");
-        
-        return targetVelocity;
     }
     
     // The player is falling 
     private Vector2 playerFalling(Vector2 targetVelocity) {
         if(keyFall) targetVelocity.y *= 1.2f;
         if(m_Rigidbody2D.velocity.y<-20f) isTooHigh=true;
-        m_Rigidbody2D.gravityScale = 3;
+        
+        targetVelocity.y = targetVelocity.y - 6f;
+        
+        Debug.Log("FALLING");
         
         anim.SetBool("newJump",false);
         anim.SetBool("falloff",true);
@@ -170,7 +177,7 @@ public class PlayerMovementsScript : MonoBehaviour
     }
     
     private bool isPlayerIdle() {
-        return !keyRight && !keyLeft && !keyJump && !keyFall && m_Rigidbody2D.velocity.y==0; 
+        return !keyRight && !keyLeft && !keyJump && !keyFall && !isJumping; 
     }
     
     // Is the player moving left or right ?
@@ -182,19 +189,19 @@ public class PlayerMovementsScript : MonoBehaviour
         return ((keyDash && keyRight) || (keyDash && keyLeft)) && nbrDash<2 && Time.time-lastDash>0.4f;
     }
     
-    // Is the player taking off ?
+    // Is the player jumping ?
     private bool canPlayerTakingOff() {
         return playerOnTheGround && keyJump && !isJumping;
     }
     
     // Is the player jumping ?
     private bool canPlayerJumping() {
-        return !playerOnTheGround && keyJump && timeInAir>=0f && isJumping;
+        return isTakingOff;
     }
     
     // Is the player falling ?
     private bool canPlayerFalling() {
-        return (!keyJump && isJumping) || (timeInAir<=0f && isJumping) || (keyFall && !playerOnTheGround);
+        return (!keyJump && isJumping) || (!isJumping && !playerOnTheGround);
     }
     
     private void Flip(float d)
@@ -242,8 +249,8 @@ public class PlayerMovementsScript : MonoBehaviour
         
         isTooHigh = false;
         isJumping = false;
-        timeInAir = 0.05f;
-        frameResetControl();
+        timeInAir = 0.25f;
+        resetControl();
     }
     
     void OnCollisionExit2D(Collision2D col)
