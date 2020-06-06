@@ -38,7 +38,7 @@ public class PlayerMovementsScript : MonoBehaviour
     
     private bool hasLeft=true;
     private bool hasRight=true;
-    private bool hasJump=true;
+    private bool hasJump=false;
     
     private bool keyJump=false;
     private bool keyFall=false;
@@ -105,10 +105,10 @@ public class PlayerMovementsScript : MonoBehaviour
 
             if(canPlayerMovingHorizontal()) targetVelocity = playerMovingHorizontal(targetVelocity);
             //if(canPlayerDashing()) targetVelocity = playerDashing(targetVelocity);
-            if(canPlayerJumping()) playerJumping();
-            if(canPlayerTakingOff()) targetVelocity = playerTakingOff(targetVelocity);
+            if(hasJump && canPlayerJumping()) playerJumping();
+            if(hasJump && canPlayerTakingOff()) targetVelocity = playerTakingOff(targetVelocity);
             if(canPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
-            if(canPlayerDoubleJumping()) targetVelocity = playerDoubleJumping(targetVelocity);
+            if(hasJump && canPlayerDoubleJumping()) targetVelocity = playerDoubleJumping(targetVelocity);
         
             m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         }
@@ -256,9 +256,20 @@ public class PlayerMovementsScript : MonoBehaviour
     public void AllowedToMove() {
         isAllowedToMove = true;
     }
+ 
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if(col.gameObject.layer == LayerMask.NameToLayer("Skill")) {
+            Skills skill = col.gameObject.GetComponent<Skills>();
+            if(skill.getSkill()=="Jump") hasJump=true;
+            Destroy(col.gameObject);
+            return;
+        };   
+    }
     
     void OnCollisionEnter2D(Collision2D col)
     {
+        
         if(col.gameObject.layer != LayerMask.NameToLayer("ground")) return;
     
         bool isContactVertical = true;
