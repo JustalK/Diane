@@ -5,35 +5,22 @@ using Cinemachine;
 
 public class PlayerMovementsScript : MonoBehaviour
 {
-    [SerializeField] private float m_JumpForce = 10f;
-    [SerializeField] private float m_LongJumpForce = 2f;
     [SerializeField] private float m_DashForce = 25f;
-    [SerializeField] private float m_FallMultiplier = 20f;
-    [SerializeField] private float m_JumpMultiplier = 20f;
-    [SerializeField] private int m_NbrOfJumpMax = 2;
     [SerializeField] private GameObject m_feetPosition;
     [SerializeField] private GameObject dust;
     [SerializeField] private CinemachineVirtualCamera vcam = null;
     [SerializeField] private float m_MovementSmoothing = 0.05f;
-    [Range(0, 1000f)] [SerializeField] private float m_MovementSpeed = 800f;
+    [SerializeField] private float m_MovementSpeed = 800f;
+    private Rigidbody2D m_Rigidbody2D;
     
+    private Vector2 m_Velocity = Vector2.zero;
 
     private Animator anim;
     private Animator animCamera;
-    private Rigidbody2D m_Rigidbody2D;
-    private Vector2 m_Velocity = Vector2.zero;
     private float direction = 0f;
-    private string gameDirection = "NO_MOVE";
-    private float lastHorizontalMove = 1f;
     private bool dashMove = false;
     private float lastDash = 0f;
     private int nbrDash = 0;
-    private bool fallMove = false;
-    private bool longJumpMove = false;
-    private float longJumpTime = 1f;
-    private bool playerOnTheGround = true;
-    public LayerMask whatIsGrounded;
-    private bool canMove = true;
     private SpriteRenderer sprite;
     
     private bool isTooHigh=false;
@@ -42,6 +29,8 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool isTakingOff=false;
     private bool isFalling=false;
     private bool isDoubleJumping=false;
+    private bool isOnTheGround = true;
+    private bool isAllowedToMove = true;
     
     private bool keyJump=false;
     private bool keyFall=false;
@@ -64,14 +53,14 @@ public class PlayerMovementsScript : MonoBehaviour
         resetControl();
         direction = 0;
         
-        if(canMove) {    
+        if(isAllowedToMove) {    
             direction = Input.GetAxisRaw("Horizontal");
             
             // If the user press horizontal and only one key at the time
             if(Input.GetButton("Horizontal")) {
                 if(direction==1) keyRight=true;
                 if(direction==-1) keyLeft=true;
-                //if(playerOnTheGround) Instantiate(dust,m_feetPosition.transform.position,Quaternion.identity);
+                //if(isOnTheGround) Instantiate(dust,m_feetPosition.transform.position,Quaternion.identity);
             }
             
             if(Input.GetButton("Jump")) {
@@ -126,7 +115,7 @@ public class PlayerMovementsScript : MonoBehaviour
     }
     
     private Vector2 playerMovingHorizontal(Vector2 targetVelocity) {
-        if(playerOnTheGround) anim.SetBool("isRunning",true);
+        if(isOnTheGround) anim.SetBool("isRunning",true);
         float d = keyRight ? 1 : -1;
         Flip(d);
         
@@ -137,7 +126,7 @@ public class PlayerMovementsScript : MonoBehaviour
     
     private Vector2 playerDashing(Vector2 targetVelocity) {
         anim.SetTrigger("isDashing");
-        if(!playerOnTheGround) nbrDash++;
+        if(!isOnTheGround) nbrDash++;
         targetVelocity.x = direction*m_MovementSpeed*m_DashForce*Time.fixedDeltaTime;
         lastDash=Time.time;
         
@@ -219,7 +208,7 @@ public class PlayerMovementsScript : MonoBehaviour
     
     // Is the player jumping ?
     private bool canPlayerTakingOff() {
-        return playerOnTheGround && keyJump && !isJumping;
+        return isOnTheGround && keyJump && !isJumping;
     }
     
     // Is the player jumping ?
@@ -229,7 +218,7 @@ public class PlayerMovementsScript : MonoBehaviour
     
     // Is the player falling ?
     private bool canPlayerFalling() {
-        return timeInAir<=0 || isFalling || (!keyJump && isJumping) || (!isJumping && !playerOnTheGround);
+        return timeInAir<=0 || isFalling || (!keyJump && isJumping) || (!isJumping && !isOnTheGround);
     }
 
     private bool canPlayerDoubleJumping() {
@@ -241,29 +230,18 @@ public class PlayerMovementsScript : MonoBehaviour
         sprite.flipX=d==-1;
     }
     
-    /**
-     * The multiplier that will affect the falling and the jumping by creating an accelation and deceleration coefficient
-     * @param float time The update time of the function
-     */
-    float GravityMultiplier(float time) {
-        if(m_Rigidbody2D.velocity.y>0) return Physics2D.gravity.y * (m_JumpMultiplier - 1) * time;
-        if(m_Rigidbody2D.velocity.y<0) return Physics2D.gravity.y * (m_FallMultiplier - 1) * time;
-        return 0;
-    }
-    
     public void Stop() {
-        canMove = false;
+        isAllowedToMove = false;
         anim.SetBool("isJumping",false);
         anim.SetBool("falloff",false);
         anim.SetBool("takeoff",false);
         anim.SetBool("isRunning",false);
         m_Rigidbody2D.velocity=Vector2.zero;
         dashMove = false;
-        longJumpMove = false;
     }
     
     public void AllowedToMove() {
-        canMove = true;
+        isAllowedToMove = true;
     }
     
     void OnCollisionEnter2D(Collision2D col)
@@ -284,9 +262,8 @@ public class PlayerMovementsScript : MonoBehaviour
         anim.SetBool("falloff",false);
         anim.SetBool("takeoff",false);
         anim.SetBool("newJump",false);
-        playerOnTheGround = true;
+        isOnTheGround = true;
         nbrDash=0;
-        longJumpTime=1f;
         
         isTooHigh = false;
         isJumping = false;
@@ -302,6 +279,6 @@ public class PlayerMovementsScript : MonoBehaviour
         if(col.gameObject.layer != LayerMask.NameToLayer("ground")) return;
         
         anim.SetBool("takeoff",true);
-        playerOnTheGround = false;
+        isOnTheGround = false;
     }
 }
