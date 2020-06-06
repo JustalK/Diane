@@ -11,6 +11,10 @@ public class PlayerMovementsScript : MonoBehaviour
     [SerializeField] private CinemachineVirtualCamera vcam = null;
     [SerializeField] private float m_MovementSmoothing = 0.05f;
     [SerializeField] private float m_MovementSpeed = 800f;
+    private float m_jumpingForce = 20f;
+    private float m_fallingForce = 4f;
+    private float m_accelerationFallingForce = 10f;
+    private float m_timeJump = 0.25f;
     private Rigidbody2D m_Rigidbody2D;
     
     private Vector2 m_Velocity = Vector2.zero;
@@ -32,6 +36,10 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool isOnTheGround = true;
     private bool isAllowedToMove = true;
     
+    private bool hasLeft=true;
+    private bool hasRight=true;
+    private bool hasJump=true;
+    
     private bool keyJump=false;
     private bool keyFall=false;
     private bool keyLeft=false;
@@ -39,13 +47,15 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool keyDash=false;
     private bool keyUpdate=false;
     
-    private float timeInAir=0.1f;
+    private float timeInAir;
     
     void Awake() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sprite = GetComponentInChildren<SpriteRenderer>();
         animCamera = vcam.GetComponent<Animator>();
+        
+        timeInAir=m_timeJump;
     }
     
     void Update()
@@ -135,7 +145,7 @@ public class PlayerMovementsScript : MonoBehaviour
     
     // The player is jumping
     private Vector2 playerTakingOff(Vector2 targetVelocity) {
-        m_Rigidbody2D.AddForce(new Vector2(0,20f),ForceMode2D.Impulse);
+        m_Rigidbody2D.AddForce(new Vector2(0,m_jumpingForce),ForceMode2D.Impulse);
         isJumping=true;
         isTakingOff=true;
         
@@ -148,7 +158,7 @@ public class PlayerMovementsScript : MonoBehaviour
 
     private Vector2 playerDoubleJumping(Vector2 targetVelocity) {
         float force=0f;
-        if(m_Rigidbody2D.velocity.y<20f) force=20f-m_Rigidbody2D.velocity.y; 
+        if(m_Rigidbody2D.velocity.y<m_jumpingForce) force=m_jumpingForce-m_Rigidbody2D.velocity.y; 
         m_Rigidbody2D.AddForce(new Vector2(0,force),ForceMode2D.Impulse);
         isTakingOff=true;
         isFalling = false;
@@ -175,11 +185,14 @@ public class PlayerMovementsScript : MonoBehaviour
     
     // The player is falling 
     private Vector2 playerFalling(Vector2 targetVelocity) {
-        if(keyFall) targetVelocity.y *= 1.2f;
         if(m_Rigidbody2D.velocity.y<-20f) isTooHigh=true;
         isFalling = true;
         
-        targetVelocity.y = targetVelocity.y - 4f;
+        targetVelocity.y = targetVelocity.y - m_fallingForce;
+        if(keyFall) {
+            targetVelocity.y -= m_accelerationFallingForce;
+            Debug.Log("KEY FALL");
+        }
         
         anim.SetBool("takeoff",false);
         anim.SetBool("isJumping",false);
@@ -270,7 +283,7 @@ public class PlayerMovementsScript : MonoBehaviour
         isDoubleJumping=false;
         isKeyReleaseInAction=false;
         isFalling = false;
-        timeInAir = 0.25f;
+        timeInAir = m_timeJump;
         resetControl();
     }
     
