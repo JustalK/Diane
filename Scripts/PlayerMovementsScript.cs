@@ -37,9 +37,11 @@ public class PlayerMovementsScript : MonoBehaviour
     private SpriteRenderer sprite;
     
     private bool isTooHigh=false;
+    private bool isKeyReleaseInAction=false;
     private bool isJumping=false;
     private bool isTakingOff=false;
     private bool isFalling=false;
+    private bool isDoubleJumping=false;
     
     private bool keyJump=false;
     private bool keyFall=false;
@@ -86,6 +88,7 @@ public class PlayerMovementsScript : MonoBehaviour
         }
         
         if(isPlayerIdle()) playerIdle();
+        if(isPlayerIdleInAction()) isKeyReleaseInAction=true;
         keyUpdate = true;
     }
     
@@ -106,6 +109,7 @@ public class PlayerMovementsScript : MonoBehaviour
             if(canPlayerJumping()) playerJumping();
             if(canPlayerTakingOff()) targetVelocity = playerTakingOff(targetVelocity);
             if(canPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
+            if(canPlayerDoubleJumping()) targetVelocity = playerDoubleJumping(targetVelocity);
         
             m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         }
@@ -146,15 +150,35 @@ public class PlayerMovementsScript : MonoBehaviour
         isJumping=true;
         isTakingOff=true;
         
+        Debug.Log("TAKING OFF");
+        
         anim.SetBool("takeoff",false);
         anim.SetBool("isJumping",true);
         return targetVelocity;
     }
+
+    private Vector2 playerDoubleJumping(Vector2 targetVelocity) {
+        float force=0f;
+        if(m_Rigidbody2D.velocity.y<20f) force=20f-m_Rigidbody2D.velocity.y; 
+        m_Rigidbody2D.AddForce(new Vector2(0,force),ForceMode2D.Impulse);
+        isTakingOff=true;
+        isFalling = false;
+        isDoubleJumping = true;
+        timeInAir = 0.25f;
+        
+        Debug.Log("DOUBLEJUMP");
+        
+        anim.SetBool("takeoff",false);
+        anim.SetBool("isJumping",true);
+        return targetVelocity;
+    }    
     
     private void playerJumping() {
         isJumping=true;
         isTakingOff=false;
         timeInAir-=Time.fixedDeltaTime;
+        
+        Debug.Log("JUMP");
         
         anim.SetBool("takeoff",false);
         anim.SetBool("isJumping",true);
@@ -179,6 +203,10 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool isPlayerIdle() {
         return !keyRight && !keyLeft && !keyJump && !keyFall && !isJumping && !isFalling; 
     }
+
+    private bool isPlayerIdleInAction() {
+        return !keyJump && !keyFall && (isJumping || isFalling); 
+    }
     
     // Is the player moving left or right ?
     private bool canPlayerMovingHorizontal() {
@@ -201,8 +229,12 @@ public class PlayerMovementsScript : MonoBehaviour
     
     // Is the player falling ?
     private bool canPlayerFalling() {
-        return timeInAir<=0 || (!keyJump && isJumping) || (!isJumping && !playerOnTheGround);
+        return timeInAir<=0 || isFalling || (!keyJump && isJumping) || (!isJumping && !playerOnTheGround);
     }
+
+    private bool canPlayerDoubleJumping() {
+        return !isDoubleJumping && keyJump && isFalling && isKeyReleaseInAction;
+    }    
     
     private void Flip(float d)
     {
@@ -258,6 +290,8 @@ public class PlayerMovementsScript : MonoBehaviour
         
         isTooHigh = false;
         isJumping = false;
+        isDoubleJumping=false;
+        isKeyReleaseInAction=false;
         isFalling = false;
         timeInAir = 0.25f;
         resetControl();
