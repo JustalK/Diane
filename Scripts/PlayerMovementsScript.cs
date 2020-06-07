@@ -43,6 +43,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool isOnTheGround = true;
     private bool isLiliputian = false;
     private bool isAllowedToMove = true;
+    private bool isAllowedToBenediction = false;
     
     private bool hasLeft=true;
     private bool hasRight=true;
@@ -62,6 +63,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private float timeLastPower=0f;
 
     private float inLayer;
+    private Benediction inCurrentBenediction;
     private float normalSize;
     
     void Awake() {
@@ -227,17 +229,17 @@ public class PlayerMovementsScript : MonoBehaviour
     }
 
     private void playerBenediction() {
-        Debug.Log("BENEDICTION");
-        float newInLayer = 1f; //to make variable
         anim.SetBool("benediction",true);
-        StartCoroutine(playerTeleportation(1f,0,0));
+        StartCoroutine(playerTeleportation(inCurrentBenediction.getLayer(),inCurrentBenediction.getPosition().x,inCurrentBenediction.getPosition().y));
+        normalSize=inCurrentBenediction.getLiliputian();
         changeTriggerCollisionGround("Ground0",true);
         changeTriggerCollisionGround("Ground1",false);
-        inLayer=1;
+        inLayer=inCurrentBenediction.getLayer();
     }
     
     IEnumerator playerTeleportation(float seconds,float x,float y) {
         yield return new WaitForSeconds(seconds);
+        playerNormalSize();
         this.transform.position = new Vector2(x,y);
         anim.SetBool("benediction",false);
     }
@@ -259,8 +261,8 @@ public class PlayerMovementsScript : MonoBehaviour
     }
     
     private void playerSmallSize() {
-        this.transform.position=new Vector2(this.transform.position.x,this.transform.position.y+m_smallSizeLayer0);
-        this.transform.localScale=new Vector2(m_smallSizeLayer0,m_smallSizeLayer0);
+        this.transform.position=new Vector2(this.transform.position.x,this.transform.position.y+normalSize/2);
+        this.transform.localScale=new Vector2(normalSize/2,normalSize/2);
     }
 
     private void playerNormalSize() {
@@ -314,7 +316,7 @@ public class PlayerMovementsScript : MonoBehaviour
     }  
   
     private bool canPlayerBenediction() {
-        return keyBenediction;
+        return keyBenediction && isAllowedToBenediction;
     }      
     
     private void Flip(float d)
@@ -338,13 +340,30 @@ public class PlayerMovementsScript : MonoBehaviour
  
     void OnTriggerEnter2D(Collider2D col)
     {
-        if(col.gameObject.layer == LayerMask.NameToLayer("Skill")) {
-            Skills skill = col.gameObject.GetComponent<Skills>();
-            if(skill.getInLayer()!=inLayer) return;
-            if(skill.getSkill()=="Jump") hasJump=true;
-            Destroy(col.gameObject);
-            return;
-        };   
+        if(col.gameObject.layer == LayerMask.NameToLayer("Skill")) collisionSkill(col);
+        if(col.gameObject.layer == LayerMask.NameToLayer("Benediction")) collisionBenediction(col);
+    }
+    
+    private void collisionSkill(Collider2D col) {
+        Skills skill = col.gameObject.GetComponent<Skills>();
+        if(skill.getInLayer()!=inLayer) return;
+        if(skill.getSkill()=="Jump") hasJump=true;
+        Destroy(col.gameObject);
+        return;
+    }
+    
+    private void collisionBenediction(Collider2D col) {
+        isAllowedToBenediction=true;
+        inCurrentBenediction=col.gameObject.GetComponent<Benediction>();
+    }
+    
+    void OnTriggerExit2D(Collider2D col) {
+        if(col.gameObject.layer == LayerMask.NameToLayer("Benediction")) exitBenediction(col);
+    }
+    
+    private void exitBenediction(Collider2D col) {
+        isAllowedToBenediction=false;
+        inCurrentBenediction=null;
     }
     
     void OnCollisionEnter2D(Collision2D col)
