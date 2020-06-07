@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+﻿using System;
+
+// Inverse gravity ?
+// Ghost (Pass through wall)
+// Layer like Abe
 
 public class PlayerMovementsScript : MonoBehaviour
 {
@@ -16,6 +21,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private float m_accelerationFallingForce = 10f;
     private float m_timeJump = 0.25f;
     private float m_timePower = 0.5f;
+    private float m_smallSizeLayer0 = 0.5f;
     private Rigidbody2D m_Rigidbody2D;
     
     private Vector2 m_Velocity = Vector2.zero;
@@ -49,10 +55,14 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool keyRight=false;
     private bool keyDash=false;
     private bool keyPower=false;
+    private bool keyBenediction=false;
     private bool keyUpdate=false;
     
     private float timeInAir;
     private float timeLastPower=0f;
+
+    private float inLayer;
+    private float normalSize;
     
     void Awake() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
@@ -61,6 +71,8 @@ public class PlayerMovementsScript : MonoBehaviour
         animCamera = vcam.GetComponent<Animator>();
         
         timeInAir=m_timeJump;
+        normalSize=this.transform.localScale.x;
+        inLayer=0;
     }
     
     void Update()
@@ -93,6 +105,10 @@ public class PlayerMovementsScript : MonoBehaviour
             if(Input.GetButton("Power")) {
                 keyPower=true;
             }
+            
+            if(Input.GetButton("Benediction")) {
+                keyBenediction=true;
+            }
         }
         
         if(isPlayerIdle()) playerIdle();
@@ -107,6 +123,7 @@ public class PlayerMovementsScript : MonoBehaviour
         keyJump = false;
         keyDash = false;
         keyPower = false;
+        keyBenediction = false;
     }
     
     void FixedUpdate() {
@@ -120,6 +137,7 @@ public class PlayerMovementsScript : MonoBehaviour
             if(canPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
             if(hasJump && canPlayerDoubleJumping()) targetVelocity = playerDoubleJumping(targetVelocity);
             if(hasLiliputian && canPlayerLiliputian()) playerLiliputian();
+            if(canPlayerBenediction()) playerBenediction();
         
             m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         }
@@ -208,6 +226,22 @@ public class PlayerMovementsScript : MonoBehaviour
         return targetVelocity;
     }
 
+    private void playerBenediction() {
+        Debug.Log("BENEDICTION");
+        float newInLayer = 1f; //to make variable
+        anim.SetBool("benediction",true);
+        StartCoroutine(playerTeleportation(1f,0,0));
+        changeTriggerCollisionGround("Ground0",true);
+        changeTriggerCollisionGround("Ground1",false);
+        inLayer=1;
+    }
+    
+    IEnumerator playerTeleportation(float seconds,float x,float y) {
+        yield return new WaitForSeconds(seconds);
+        this.transform.position = new Vector2(x,y);
+        anim.SetBool("benediction",false);
+    }
+    
     private void playerLiliputian() {
         timeLastPower=Time.time;
         isLiliputian=!isLiliputian;
@@ -215,15 +249,29 @@ public class PlayerMovementsScript : MonoBehaviour
         else playerNormalSize();
     }
     
+    private void changeTriggerCollisionGround(string name,bool isTrigger) {
+        GameObject[] gameObjects = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+        GameObject grounds = Array.Find(gameObjects,x => x.name==name);
+        EdgeCollider2D[] allChildren = grounds.GetComponentsInChildren<EdgeCollider2D>();
+        foreach (EdgeCollider2D collider in allChildren) {
+            collider.isTrigger=isTrigger;
+        }
+    }
+    
     private void playerSmallSize() {
-        this.transform.position=new Vector2(this.transform.position.x,this.transform.position.y+0.5f);
-        this.transform.localScale=new Vector2(0.5f,0.5f);
+        this.transform.position=new Vector2(this.transform.position.x,this.transform.position.y+m_smallSizeLayer0);
+        this.transform.localScale=new Vector2(m_smallSizeLayer0,m_smallSizeLayer0);
     }
 
     private void playerNormalSize() {
-        this.transform.position=new Vector2(this.transform.position.x,this.transform.position.y-0.5f);
-        this.transform.localScale=new Vector2(1f,1f);
+        this.transform.position=new Vector2(this.transform.position.x,this.transform.position.y-m_smallSizeLayer0);
+        this.transform.localScale=new Vector2(normalSize,normalSize);
     }    
+    
+    private float playerSmallByLayer() {
+        if(inLayer==0) return m_smallSizeLayer0;
+        return m_smallSizeLayer0;
+    }
     
     private bool isPlayerIdle() {
         return !keyRight && !keyLeft && !keyJump && !keyFall && !isJumping && !isFalling; 
@@ -264,6 +312,10 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool canPlayerLiliputian() {
         return keyPower && Time.time-timeLastPower>=m_timePower;
     }  
+  
+    private bool canPlayerBenediction() {
+        return keyBenediction;
+    }      
     
     private void Flip(float d)
     {
@@ -288,6 +340,7 @@ public class PlayerMovementsScript : MonoBehaviour
     {
         if(col.gameObject.layer == LayerMask.NameToLayer("Skill")) {
             Skills skill = col.gameObject.GetComponent<Skills>();
+            if(skill.getInLayer()!=inLayer) return;
             if(skill.getSkill()=="Jump") hasJump=true;
             Destroy(col.gameObject);
             return;
@@ -296,8 +349,10 @@ public class PlayerMovementsScript : MonoBehaviour
     
     void OnCollisionEnter2D(Collision2D col)
     {
-        
-        if(col.gameObject.layer != LayerMask.NameToLayer("ground")) return;
+        if((inLayer==0 && col.gameObject.layer != LayerMask.NameToLayer("Ground0")) || 
+           (inLayer==1 && col.gameObject.layer != LayerMask.NameToLayer("Ground1"))) {
+            return;
+        }
     
         bool isContactVertical = true;
         foreach (ContactPoint2D contact in col.contacts)
