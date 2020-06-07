@@ -15,6 +15,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private float m_fallingForce = 4f;
     private float m_accelerationFallingForce = 10f;
     private float m_timeJump = 0.25f;
+    private float m_timePower = 0.5f;
     private Rigidbody2D m_Rigidbody2D;
     
     private Vector2 m_Velocity = Vector2.zero;
@@ -34,20 +35,24 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool isFalling=false;
     private bool isDoubleJumping=false;
     private bool isOnTheGround = true;
+    private bool isLiliputian = false;
     private bool isAllowedToMove = true;
     
     private bool hasLeft=true;
     private bool hasRight=true;
     private bool hasJump=false;
+    private bool hasLiliputian=true;
     
     private bool keyJump=false;
     private bool keyFall=false;
     private bool keyLeft=false;
     private bool keyRight=false;
     private bool keyDash=false;
+    private bool keyPower=false;
     private bool keyUpdate=false;
     
     private float timeInAir;
+    private float timeLastPower=0f;
     
     void Awake() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
@@ -84,6 +89,10 @@ public class PlayerMovementsScript : MonoBehaviour
             if(Input.GetButton("Dash")) {
                 keyDash=true;
             }
+            
+            if(Input.GetButton("Power")) {
+                keyPower=true;
+            }
         }
         
         if(isPlayerIdle()) playerIdle();
@@ -97,6 +106,7 @@ public class PlayerMovementsScript : MonoBehaviour
         keyFall = false;
         keyJump = false;
         keyDash = false;
+        keyPower = false;
     }
     
     void FixedUpdate() {
@@ -109,6 +119,7 @@ public class PlayerMovementsScript : MonoBehaviour
             if(hasJump && canPlayerTakingOff()) targetVelocity = playerTakingOff(targetVelocity);
             if(canPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
             if(hasJump && canPlayerDoubleJumping()) targetVelocity = playerDoubleJumping(targetVelocity);
+            if(hasLiliputian && canPlayerLiliputian()) playerLiliputian();
         
             m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         }
@@ -129,7 +140,7 @@ public class PlayerMovementsScript : MonoBehaviour
         float d = keyRight ? 1 : -1;
         Flip(d);
         
-        targetVelocity.x = d * m_MovementSpeed * Time.fixedDeltaTime;
+        targetVelocity.x = d * m_MovementSpeed * Time.fixedDeltaTime * this.transform.localScale.x;
         
         return targetVelocity;
     }
@@ -137,7 +148,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private Vector2 playerDashing(Vector2 targetVelocity) {
         anim.SetTrigger("isDashing");
         if(!isOnTheGround) nbrDash++;
-        targetVelocity.x = direction*m_MovementSpeed*m_DashForce*Time.fixedDeltaTime;
+        targetVelocity.x = direction*m_MovementSpeed*m_DashForce*Time.fixedDeltaTime*this.transform.localScale.x;
         lastDash=Time.time;
         
         return targetVelocity;
@@ -145,27 +156,23 @@ public class PlayerMovementsScript : MonoBehaviour
     
     // The player is jumping
     private Vector2 playerTakingOff(Vector2 targetVelocity) {
-        m_Rigidbody2D.AddForce(new Vector2(0,m_jumpingForce),ForceMode2D.Impulse);
+        m_Rigidbody2D.AddForce(new Vector2(0,m_jumpingForce*this.transform.localScale.y),ForceMode2D.Impulse);
         isJumping=true;
         isTakingOff=true;
         
-        Debug.Log("TAKING OFF");
-        
         anim.SetBool("takeoff",false);
         anim.SetBool("isJumping",true);
-        return targetVelocity;
+        return targetVelocity; 
     }
 
     private Vector2 playerDoubleJumping(Vector2 targetVelocity) {
         float force=0f;
         if(m_Rigidbody2D.velocity.y<m_jumpingForce) force=m_jumpingForce-m_Rigidbody2D.velocity.y; 
-        m_Rigidbody2D.AddForce(new Vector2(0,force),ForceMode2D.Impulse);
+        m_Rigidbody2D.AddForce(new Vector2(0,force*this.transform.localScale.y),ForceMode2D.Impulse);
         isTakingOff=true;
         isFalling = false;
         isDoubleJumping = true;
         timeInAir = 0.25f;
-        
-        Debug.Log("DOUBLEJUMP");
         
         anim.SetBool("takeoff",false);
         anim.SetBool("isJumping",true);
@@ -188,10 +195,9 @@ public class PlayerMovementsScript : MonoBehaviour
         if(m_Rigidbody2D.velocity.y<-20f) isTooHigh=true;
         isFalling = true;
         
-        targetVelocity.y = targetVelocity.y - m_fallingForce;
+        targetVelocity.y = targetVelocity.y - m_fallingForce*this.transform.localScale.y;
         if(keyFall) {
-            targetVelocity.y -= m_accelerationFallingForce;
-            Debug.Log("KEY FALL");
+            targetVelocity.y -= m_accelerationFallingForce*this.transform.localScale.y;
         }
         
         anim.SetBool("takeoff",false);
@@ -201,6 +207,23 @@ public class PlayerMovementsScript : MonoBehaviour
         
         return targetVelocity;
     }
+
+    private void playerLiliputian() {
+        timeLastPower=Time.time;
+        isLiliputian=!isLiliputian;
+        if(isLiliputian) playerSmallSize();
+        else playerNormalSize();
+    }
+    
+    private void playerSmallSize() {
+        this.transform.position=new Vector2(this.transform.position.x,this.transform.position.y+0.5f);
+        this.transform.localScale=new Vector2(0.5f,0.5f);
+    }
+
+    private void playerNormalSize() {
+        this.transform.position=new Vector2(this.transform.position.x,this.transform.position.y-0.5f);
+        this.transform.localScale=new Vector2(1f,1f);
+    }    
     
     private bool isPlayerIdle() {
         return !keyRight && !keyLeft && !keyJump && !keyFall && !isJumping && !isFalling; 
@@ -236,7 +259,11 @@ public class PlayerMovementsScript : MonoBehaviour
 
     private bool canPlayerDoubleJumping() {
         return !isDoubleJumping && keyJump && isFalling && isKeyReleaseInAction;
-    }    
+    }  
+    
+    private bool canPlayerLiliputian() {
+        return keyPower && Time.time-timeLastPower>=m_timePower;
+    }  
     
     private void Flip(float d)
     {

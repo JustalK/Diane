@@ -35536,6 +35536,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1777470802}
   - component: {fileID: 1777470803}
+  - component: {fileID: 1777470804}
   m_Layer: 11
   m_Name: GameObject
   m_TagString: Untagged
@@ -35583,6 +35584,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.3315792, y: 2.250958}
   m_EdgeRadius: 0
+--- !u!114 &1777470804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777470801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f6abd98d31748259ef031e4e114fa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skill: Jump
 --- !u!1 &1790493601
 GameObject:
   m_ObjectHideFlags: 0
