@@ -40,7 +40,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool isTakingOff=false;
     private bool isFalling=false;
     private bool isDoubleJumping=false;
-    private bool isOnTheGround = true;
+    private bool isOnTheGround = false;
     private bool isLiliputian = false;
     private bool isAllowedToMove = true;
     private bool isAllowedToBenediction = false;
@@ -214,6 +214,8 @@ public class PlayerMovementsScript : MonoBehaviour
     private Vector2 playerFalling(Vector2 targetVelocity) {
         if(m_Rigidbody2D.velocity.y<-20f) isTooHigh=true;
         isFalling = true;
+        
+        Debug.Log("falling");
         
         targetVelocity.y = targetVelocity.y - m_fallingForce*this.transform.localScale.y;
         if(keyFall) {
@@ -401,7 +403,10 @@ public class PlayerMovementsScript : MonoBehaviour
     
     void OnCollisionExit2D(Collision2D col)
     {
-        if(col.gameObject.layer != LayerMask.NameToLayer("ground")) return;
+        if((inLayer==0 && col.gameObject.layer != LayerMask.NameToLayer("Ground0")) || 
+           (inLayer==1 && col.gameObject.layer != LayerMask.NameToLayer("Ground1"))) {
+           return;
+        }
         
         anim.SetBool("takeoff",true);
         isOnTheGround = false;
