@@ -19,8 +19,11 @@ public class PlayerMovementsScript : MonoBehaviour
     private float m_jumpingForce = 20f;
     private float m_fallingForce = 4f;
     private float m_accelerationFallingForce = 10f;
+    
     private float m_timeJump = 0.25f;
     private float m_timePower = 0.5f;
+    private float m_readingDialogue = 0.5f;
+    
     private float m_smallSizeLayer0 = 0.5f;
     private Rigidbody2D m_Rigidbody2D;
     
@@ -34,6 +37,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private int nbrDash = 0;
     private SpriteRenderer sprite;
     
+    private bool isReadingDialogue=false;
     private bool isTooHigh=false;
     private bool isKeyReleaseInAction=false;
     private bool isJumping=false;
@@ -55,12 +59,14 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool keyLeft=false;
     private bool keyRight=false;
     private bool keyDash=false;
+    private bool keyNextDialogue=false;
     private bool keyPower=false;
     private bool keyBenediction=false;
     private bool keyUpdate=false;
     
     private float timeInAir;
     private float timeLastPower=0f;
+    private float timeLastReadingDialogue=0f;
 
     private float inLayer;
     private Benediction inCurrentBenediction;
@@ -82,6 +88,14 @@ public class PlayerMovementsScript : MonoBehaviour
         resetControl();
         direction = 0;
         
+        // If the player is reading
+        if(isReadingDialogue) { 
+            if(Input.GetButton("Dash")) {
+                keyNextDialogue=true;
+            }
+        }
+        
+        // If the player is playing the game
         if(isAllowedToMove) {    
             direction = Input.GetAxisRaw("Horizontal");
             
@@ -126,6 +140,7 @@ public class PlayerMovementsScript : MonoBehaviour
         keyDash = false;
         keyPower = false;
         keyBenediction = false;
+        keyNextDialogue = false;
     }
     
     void FixedUpdate() {
@@ -140,6 +155,7 @@ public class PlayerMovementsScript : MonoBehaviour
             if(hasJump && canPlayerDoubleJumping()) targetVelocity = playerDoubleJumping(targetVelocity);
             if(hasLiliputian && canPlayerLiliputian()) playerLiliputian();
             if(canPlayerBenediction()) playerBenediction();
+            if(canReadNextDialogue()) readNextDialogue();
         
             m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         }
@@ -320,6 +336,27 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool canPlayerBenediction() {
         return keyBenediction && isAllowedToBenediction;
     }      
+    
+    private bool canReadNextDialogue() {
+        return keyNextDialogue && isReadingDialogue && Time.time-timeLastReadingDialogue>m_readingDialogue;
+    }
+    
+    public void willReadDialogue() {
+        timeLastReadingDialogue=Time.time;
+        isReadingDialogue=true;
+        isAllowedToMove=false;   
+    }
+
+    public void stopReadDialogue() {
+        timeLastReadingDialogue=0f;
+        isReadingDialogue=false;
+        isAllowedToMove=true;   
+    }
+    
+    private void readNextDialogue() {
+        timeLastReadingDialogue=Time.time;
+        FindObjectOfType<DialogueManager>().DisplayNextSentance();
+    }
     
     private void Flip(float d)
     {
