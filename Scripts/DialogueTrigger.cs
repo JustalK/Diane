@@ -8,5 +8,6 @@ public class DialogueTrigger : MonoBehaviour
     
     void OnTriggerEnter2D(Collider2D col) {
         FindObjectOfType<DialogueManager>().StartDialogue(dialogue);
+        Destroy(this);
     }
 }
