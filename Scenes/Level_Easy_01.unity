@@ -28527,6 +28527,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 882631360221037280, guid: 2b8d94e5582697ade92aa69de52319e6,
+        type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 1237022508193073098, guid: 2b8d94e5582697ade92aa69de52319e6,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -28636,6 +28641,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -0.00024414062
+      objectReference: {fileID: 0}
+    - target: {fileID: 2782622953727955577, guid: 2b8d94e5582697ade92aa69de52319e6,
+        type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 7269948315989563605, guid: 2b8d94e5582697ade92aa69de52319e6,
         type: 3}
