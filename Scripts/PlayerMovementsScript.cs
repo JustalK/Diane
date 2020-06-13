@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 ﻿using System;
+using TMPro;
 
 // Inverse gravity ?
 // Ghost (Pass through wall)
@@ -13,6 +14,9 @@ public class PlayerMovementsScript : MonoBehaviour
     [SerializeField] private float m_DashForce = 25f;
     [SerializeField] private GameObject m_feetPosition;
     [SerializeField] private GameObject dust;
+    [SerializeField] private Animator message_animator;
+    [SerializeField] private TextMeshProUGUI title;
+    [SerializeField] private TextMeshProUGUI description;
     [SerializeField] private CinemachineVirtualCamera vcam = null;
     [SerializeField] private float m_MovementSmoothing = 0.05f;
     [SerializeField] private float m_MovementSpeed = 800f;
@@ -48,6 +52,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool isLiliputian = false;
     private bool isAllowedToMove = true;
     private bool isAllowedToBenediction = false;
+    private bool isMessageWaitingForJump = false;
     
     private bool hasLeft=true;
     private bool hasRight=true;
@@ -220,7 +225,7 @@ public class PlayerMovementsScript : MonoBehaviour
         isTakingOff=false;
         timeInAir-=Time.fixedDeltaTime;
         
-        Debug.Log("JUMP");
+        if(isMessageWaitingForJump) playerExecutingAction();
         
         anim.SetBool("takeoff",false);
         anim.SetBool("isJumping",true);
@@ -386,9 +391,20 @@ public class PlayerMovementsScript : MonoBehaviour
     private void collisionSkill(Collider2D col) {
         Skills skill = col.gameObject.GetComponent<Skills>();
         if(skill.getInLayer()!=inLayer) return;
-        if(skill.getSkill()=="Jump") hasJump=true;
+        if(skill.getSkill()=="Jump") {
+            hasJump = true;
+            isMessageWaitingForJump = true;
+        }
+        title.text = skill.getTitle(); 
+        description.text = skill.getDescription();
+        message_animator.SetBool("isShowing",true);
         Destroy(col.gameObject);
         return;
+    }
+    
+    private void playerExecutingAction() {
+        isMessageWaitingForJump=false;
+        message_animator.SetBool("isShowing",false);
     }
     
     private void collisionBenediction(Collider2D col) {
