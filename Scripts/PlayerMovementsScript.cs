@@ -53,11 +53,13 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool isAllowedToMove = true;
     private bool isAllowedToBenediction = false;
     private bool isMessageWaitingForJump = false;
+    private bool isMessageWaitingForBenediction = false;
     
     private bool hasLeft=true;
     private bool hasRight=true;
     private bool hasJump=false;
-    private bool hasLiliputian=true;
+    private bool hasLiliputian=false;
+    private bool hasBenediction=false;
     
     private bool keyJump=false;
     private bool keyFall=false;
@@ -159,7 +161,7 @@ public class PlayerMovementsScript : MonoBehaviour
             if(canPlayerFalling()) targetVelocity = playerFalling(targetVelocity);
             if(hasJump && canPlayerDoubleJumping()) targetVelocity = playerDoubleJumping(targetVelocity);
             if(hasLiliputian && canPlayerLiliputian()) playerLiliputian();
-            if(canPlayerBenediction()) playerBenediction();
+            if(hasBenediction && canPlayerBenediction()) playerBenediction();
             if(canReadNextDialogue()) readNextDialogue();
         
             m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
@@ -252,6 +254,8 @@ public class PlayerMovementsScript : MonoBehaviour
     }
 
     private void playerBenediction() {
+        if(isMessageWaitingForBenediction) playerExecutingAction();
+        
         anim.SetBool("benediction",true);
         StartCoroutine(playerTeleportation(inCurrentBenediction.getLayer(),inCurrentBenediction.getPosition().x,inCurrentBenediction.getPosition().y));
         normalSize=inCurrentBenediction.getLiliputian();
@@ -394,6 +398,10 @@ public class PlayerMovementsScript : MonoBehaviour
         if(skill.getSkill()=="Jump") {
             hasJump = true;
             isMessageWaitingForJump = true;
+        }
+        if(skill.getSkill()=="Benediction") {
+            hasBenediction = true;
+            isMessageWaitingForBenediction = true;
         }
         title.text = skill.getTitle(); 
         description.text = skill.getDescription();
