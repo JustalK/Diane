@@ -5,9 +5,11 @@ using UnityEngine;
 public class DialogueTrigger : MonoBehaviour
 {
     [SerializeField] private Dialogue dialogue;
+    [SerializeField] private float numberTrigger;
     
     void OnTriggerEnter2D(Collider2D col) {
         FindObjectOfType<DialogueManager>().StartDialogue(dialogue);
-        Destroy(this);
+        numberTrigger--;
+        if(numberTrigger==0) Destroy(this);
     }
 }
