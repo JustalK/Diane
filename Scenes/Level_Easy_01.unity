@@ -619,6 +619,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
         type: 3}
+      propertyPath: dialogue.image.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
       propertyPath: dialogue.sentances.Array.data[0]
       value: 'I hear noise on the other side...
 
@@ -648,6 +653,18 @@ PrefabInstance:
       propertyPath: numberBeforeTrigger
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
+      propertyPath: dialogue.image.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: a7ee358f63bf3c09d88384dcaf609d3d,
+        type: 3}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
+      propertyPath: dialogue.image.Array.data[1]
+      value: 
+      objectReference: {fileID: 21300000, guid: a7ee358f63bf3c09d88384dcaf609d3d,
+        type: 3}
     - target: {fileID: 5630635471826070659, guid: cd322bd2d3e86075686d372b415de6cc,
         type: 3}
       propertyPath: m_IsTrigger
@@ -6010,6 +6027,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
         type: 3}
+      propertyPath: dialogue.image.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
       propertyPath: dialogue.sentances.Array.data[0]
       value: A SCROLL !!!
       objectReference: {fileID: 0}
@@ -6038,6 +6060,24 @@ PrefabInstance:
       propertyPath: numberTrigger
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
+      propertyPath: dialogue.image.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: deaa187b02115553cb36e5127ae6ebaa,
+        type: 3}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
+      propertyPath: dialogue.image.Array.data[1]
+      value: 
+      objectReference: {fileID: 21300000, guid: 5c20e94bb254b0b37989d07ba96b8fca,
+        type: 3}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
+      propertyPath: dialogue.image.Array.data[2]
+      value: 
+      objectReference: {fileID: 21300000, guid: a7ee358f63bf3c09d88384dcaf609d3d,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cd322bd2d3e86075686d372b415de6cc, type: 3}
 --- !u!4 &1193541931 stripped
@@ -38195,6 +38235,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 829445672729295661, guid: 842f0f16849f7047b9c1e4412c97e582,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -0.028503418
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 842f0f16849f7047b9c1e4412c97e582, type: 3}
 --- !u!95 &829445672229830709 stripped
@@ -38555,6 +38600,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
         type: 3}
+      propertyPath: dialogue.image.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
       propertyPath: dialogue.sentances.Array.data[0]
       value: 'Where am I ?
 
@@ -38584,6 +38634,24 @@ PrefabInstance:
       propertyPath: numberBeforeTrigger
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
+      propertyPath: dialogue.image.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 42f036053300945d4ad420c8a40c28c1,
+        type: 3}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
+      propertyPath: dialogue.image.Array.data[1]
+      value: 
+      objectReference: {fileID: 21300000, guid: aa66c98ba408a853f82ae3e4d752d0b6,
+        type: 3}
+    - target: {fileID: 5630635471826070658, guid: cd322bd2d3e86075686d372b415de6cc,
+        type: 3}
+      propertyPath: dialogue.image.Array.data[2]
+      value: 
+      objectReference: {fileID: 21300000, guid: aa66c98ba408a853f82ae3e4d752d0b6,
+        type: 3}
     - target: {fileID: 5630635471826070659, guid: cd322bd2d3e86075686d372b415de6cc,
         type: 3}
       propertyPath: m_IsTrigger

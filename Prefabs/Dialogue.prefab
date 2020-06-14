@@ -345,6 +345,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: {fileID: 3586746460773694737}
   dialogueText: {fileID: 7396018271276654248}
+  dialogueImage: {fileID: 3585014580933284662}
   anim: {fileID: 7067343159102386128}
   gplayer: {fileID: 0}
 --- !u!1 &4694303158034277507
@@ -812,7 +813,7 @@ MonoBehaviour:
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
-  m_firstOverflowCharacterIndex: 0
+  m_firstOverflowCharacterIndex: -1
   m_linkedTextComponent: {fileID: 0}
   m_isLinkedTextComponent: 0
   m_isTextTruncated: 0
