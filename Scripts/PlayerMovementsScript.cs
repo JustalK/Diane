@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 using Cinemachine;
 ﻿using System;
@@ -163,7 +164,8 @@ public class PlayerMovementsScript : MonoBehaviour
             if(hasLiliputian && canPlayerLiliputian()) playerLiliputian();
             if(hasBenediction && canPlayerBenediction()) playerBenediction();
             if(canReadNextDialogue()) readNextDialogue();
-        
+        Debug.Log(hasBenediction);
+            
             m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         }
         keyUpdate=false;
@@ -257,11 +259,23 @@ public class PlayerMovementsScript : MonoBehaviour
         if(isMessageWaitingForBenediction) playerExecutingAction();
         
         anim.SetBool("benediction",true);
-        StartCoroutine(playerTeleportation(inCurrentBenediction.getLayer(),inCurrentBenediction.getPosition().x,inCurrentBenediction.getPosition().y));
-        normalSize=inCurrentBenediction.getLiliputian();
-        changeTriggerCollisionGround("Ground0",true);
-        changeTriggerCollisionGround("Ground1",false);
-        inLayer=inCurrentBenediction.getLayer();
+        
+        
+        if(inCurrentBenediction.getType()=="Teleportation") {
+            StartCoroutine(playerTeleportation(inCurrentBenediction.getLayer(),inCurrentBenediction.getPosition().x,inCurrentBenediction.getPosition().y));
+            normalSize=inCurrentBenediction.getLiliputian();
+            changeTriggerCollisionGround("Ground0",true);
+            changeTriggerCollisionGround("Ground1",false);
+            inLayer=inCurrentBenediction.getLayer();
+        } else {
+            isAllowedToMove=false;
+            StartCoroutine(playerNewLevel(2));
+        }
+    }
+    
+    IEnumerator playerNewLevel(float seconds) {
+        yield return new WaitForSeconds(seconds);
+        SceneManager.LoadScene(inCurrentBenediction.getLevel());
     }
     
     IEnumerator playerTeleportation(float seconds,float x,float y) {
