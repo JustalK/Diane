@@ -9,7 +9,7 @@ public class Timer : MonoBehaviour
     public static Timer instance = null;
     private TextMeshProUGUI textMeshPro;
     private float time=0f;
-    private bool startTime=false;
+    private bool isTimeStarted=false;
     
     void Awake() {
         if(instance == null) {
@@ -27,7 +27,7 @@ public class Timer : MonoBehaviour
     }
     
     void Update() {
-        if(startTime) {
+        if(isTimeStarted) {
             time+=Time.deltaTime;
             textMeshPro.text=FormatTime(time);
         }
@@ -42,10 +42,14 @@ public class Timer : MonoBehaviour
     }
 
     public void StartTime() {
-        startTime=true;
+        isTimeStarted=true;
     }
     
     public void ResetTime() {
         time=0f;
+    }
+    
+    public bool IsTimeStarted() {
+        return isTimeStarted;
     }
 }

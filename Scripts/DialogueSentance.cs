@@ -1,12 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
-public class GameManager : MonoBehaviour
+public class DialogueSentance : MonoBehaviour
 {
-    public static GameManager instance = null;
-    private Player player;
-    private Timer timer;
+    public static DialogueSentance instance = null;
+    private TextMeshProUGUI tmp;
     
     void Awake() {
         if(instance == null) {
@@ -20,11 +20,14 @@ public class GameManager : MonoBehaviour
     }
     
     void Start() {
-        player = Player.instance;
-        timer = Timer.instance;
+        tmp = GetComponent<TextMeshProUGUI>();
     }
     
-    void Update() {
-        if(player.IsPlayerMadeOneMove() && !timer.IsTimeStarted()) timer.StartTime(); 
+    public void SetText(string text) {
+        tmp.text=text;
+    }
+    
+    public void AddLetter(char letter) {
+        tmp.text += letter;
     }
 }

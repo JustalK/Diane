@@ -1,33 +1,43 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 
 public class DialogueManager : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI name;
-    [SerializeField] private TextMeshProUGUI dialogueText;
-    [SerializeField] private GameObject dialogueImage;
-    [SerializeField] private Animator anim;
-    [SerializeField] private GameObject gplayer;
-    private Image playerImage;
-    private PlayerMovementsScript player;
+    public static DialogueManager instance = null;
+    private Animator animator;
+    private Player player;
+    private DialogueName dialogueName;
+    private DialogueSentance dialogueSentance;
+    private DialogueImage dialogueImage;
     private Queue<string> sentances;
-    private Sprite[] images;
+    private Sprite[] sprites;
     
+    void Awake() {
+        if(instance == null) {
+            instance = this;
+            return;
+        }
+        if(instance != this) {
+            Destroy(gameObject);
+            return;
+        }
+    }
     
     void Start() {
+        player = Player.instance;
+        dialogueSentance = DialogueSentance.instance;
+        dialogueName = DialogueName.instance;
+        dialogueImage = DialogueImage.instance;
+        animator = GetComponent<Animator>();
         sentances = new Queue<string>();
-        player = gplayer.GetComponent<PlayerMovementsScript>();
-        playerImage = dialogueImage.GetComponent<Image>();
     }
     
     public void StartDialogue(Dialogue dialogue) {
         player.willReadDialogue();
-        anim.SetBool("isOpen",true);
-        name.text = dialogue.name;
-        images = dialogue.image;
+        animator.SetBool("isOpen",true);
+        dialogueName.SetText(dialogue.name);
+        sprites = dialogue.image;
         sentances.Clear();
         
         foreach(string sentance in dialogue.sentances) {
@@ -42,24 +52,24 @@ public class DialogueManager : MonoBehaviour
             EndDialogue();
             return;
         }
-        
+
         string sentance = sentances.Dequeue();
-        playerImage.sprite = images[images.Length - 1 - sentances.Count];
+        dialogueImage.SetSprite(sprites[sprites.Length - 1 - sentances.Count]);
         
         StopAllCoroutines();
         StartCoroutine(TypeSentance(sentance));
     }
     
     IEnumerator TypeSentance(string sentance) {
-        dialogueText.text = "";
+        dialogueSentance.SetText("");
         foreach(char letter in sentance.ToCharArray()) {
-            dialogueText.text += letter;
+            dialogueSentance.AddLetter(letter);
             yield return null;
         }
     }
     
     void EndDialogue() {
-        anim.SetBool("isOpen",false);
+        animator.SetBool("isOpen",false);
         player.stopReadDialogue();
     }
 }

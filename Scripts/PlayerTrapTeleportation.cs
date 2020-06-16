@@ -18,7 +18,7 @@ public class PlayerTrapTeleportation : MonoBehaviour
     }
     
     IEnumerator Teleport() {
-        PlayerMovementsScript playerScript = player.GetComponent<PlayerMovementsScript>();
+        Player playerScript = player.GetComponent<Player>();
         playerScript.Stop();
         yield return new WaitForSeconds(0.5f);
         player.transform.position = new Vector2(teleportation.transform.position.x,teleportation.transform.position.y);
@@ -26,7 +26,7 @@ public class PlayerTrapTeleportation : MonoBehaviour
     
     IEnumerator AllowedPlayerToMove() {
         yield return new WaitForSeconds(1f);
-        PlayerMovementsScript playerScript = player.GetComponent<PlayerMovementsScript>();
+        Player playerScript = player.GetComponent<Player>();
         playerScript.AllowedToMove();
     }
 }

@@ -10,8 +10,9 @@ using TMPro;
 // Ghost (Pass through wall)
 // Layer like Abe
 
-public class PlayerMovementsScript : MonoBehaviour
+public class Player : MonoBehaviour
 {
+    public static Player instance = null;
     [SerializeField] private float m_DashForce = 25f;
     [SerializeField] private GameObject m_feetPosition;
     [SerializeField] private GameObject dust;
@@ -61,6 +62,7 @@ public class PlayerMovementsScript : MonoBehaviour
     private bool hasJump=false;
     private bool hasLiliputian=false;
     private bool hasBenediction=false;
+    private bool hasMadeOneMove=false;
     
     private bool keyJump=false;
     private bool keyFall=false;
@@ -81,6 +83,17 @@ public class PlayerMovementsScript : MonoBehaviour
     private float normalSize;
     
     void Awake() {
+        if(instance == null) {
+            instance = this;
+            return;
+        }
+        if(instance != this) {
+            Destroy(gameObject);
+            return;
+        }
+    }
+    
+    void Start() {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sprite = GetComponentInChildren<SpriteRenderer>();
@@ -136,6 +149,7 @@ public class PlayerMovementsScript : MonoBehaviour
         }
         
         if(isPlayerIdle()) playerIdle();
+        if(isPlayerMoving()) hasMadeOneMove=true;
         if(isPlayerIdleInAction()) isKeyReleaseInAction=true;
         keyUpdate = true;
     }
@@ -320,8 +334,16 @@ public class PlayerMovementsScript : MonoBehaviour
         return !keyRight && !keyLeft && !keyJump && !keyFall && !isJumping && !isFalling; 
     }
 
+    private bool isPlayerMoving() {
+        return keyRight || keyLeft || keyJump || keyFall; 
+    }
+    
     private bool isPlayerIdleInAction() {
         return !keyJump && !keyFall && (isJumping || isFalling); 
+    }
+    
+    public bool IsPlayerMadeOneMove() {
+        return hasMadeOneMove;
     }
     
     // Is the player moving left or right ?

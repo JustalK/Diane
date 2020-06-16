@@ -1,12 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+public class DialogueImage : MonoBehaviour
 {
-    public static GameManager instance = null;
-    private Player player;
-    private Timer timer;
+    public static DialogueImage instance = null;
+    private Image image;
     
     void Awake() {
         if(instance == null) {
@@ -20,11 +20,10 @@ public class GameManager : MonoBehaviour
     }
     
     void Start() {
-        player = Player.instance;
-        timer = Timer.instance;
+        image = GetComponent<Image>();
     }
     
-    void Update() {
-        if(player.IsPlayerMadeOneMove() && !timer.IsTimeStarted()) timer.StartTime(); 
+    public void SetSprite(Sprite sprite) {
+        image.sprite = sprite; 
     }
 }

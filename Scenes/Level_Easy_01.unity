@@ -38728,6 +38728,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 808685112145570491, guid: 2b8d94e5582697ade92aa69de52319e6,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 808685112145570491, guid: 2b8d94e5582697ade92aa69de52319e6,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.0000076293945
+      objectReference: {fileID: 0}
+    - target: {fileID: 808685112145570491, guid: 2b8d94e5582697ade92aa69de52319e6,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0.0000038146973
+      objectReference: {fileID: 0}
+    - target: {fileID: 808685112145570491, guid: 2b8d94e5582697ade92aa69de52319e6,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0.0000076293945
+      objectReference: {fileID: 0}
     - target: {fileID: 882631360221037280, guid: 2b8d94e5582697ade92aa69de52319e6,
         type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
@@ -38848,6 +38868,26 @@ PrefabInstance:
       propertyPath: m_AdditionalShaderChannelsFlag
       value: 25
       objectReference: {fileID: 0}
+    - target: {fileID: 6840679780353616788, guid: 2b8d94e5582697ade92aa69de52319e6,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6840679780353616788, guid: 2b8d94e5582697ade92aa69de52319e6,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6840679780353616788, guid: 2b8d94e5582697ade92aa69de52319e6,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.0000009536743
+      objectReference: {fileID: 0}
+    - target: {fileID: 6840679780353616788, guid: 2b8d94e5582697ade92aa69de52319e6,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0.0000019073486
+      objectReference: {fileID: 0}
     - target: {fileID: 7269948315989563605, guid: 2b8d94e5582697ade92aa69de52319e6,
         type: 3}
       propertyPath: m_DynamicOccludee
@@ -38861,7 +38901,7 @@ PrefabInstance:
     - target: {fileID: 8615947819774107008, guid: 2b8d94e5582697ade92aa69de52319e6,
         type: 3}
       propertyPath: m_Name
-      value: Dialogue
+      value: DialogueManager
       objectReference: {fileID: 0}
     - target: {fileID: 8615947819774107011, guid: 2b8d94e5582697ade92aa69de52319e6,
         type: 3}
