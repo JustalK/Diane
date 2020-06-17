@@ -13,7 +13,7 @@ public class ParallaxMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        cameraTransform = Camera.main.transform;
+        cameraTransform = Camera.instance.transform;
         lastCameraPosition = cameraTransform.position;
         Sprite sprite = GetComponent<SpriteRenderer>().sprite;
         Texture2D texture = sprite.texture;

@@ -17,11 +17,10 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject m_feetPosition;
     [SerializeField] private GameObject dust;
     [SerializeField] private Animator message_animator;
-    [SerializeField] private TextMeshProUGUI title;
-    [SerializeField] private TextMeshProUGUI description;
-    [SerializeField] private CinemachineVirtualCamera vcam = null;
     [SerializeField] private float m_MovementSmoothing = 0.05f;
     [SerializeField] private float m_MovementSpeed = 800f;
+    private CinemachineVirtualCamera vcam;
+    private Message message;
     private float m_jumpingForce = 20f;
     private float m_fallingForce = 4f;
     private float m_accelerationFallingForce = 10f;
@@ -98,6 +97,7 @@ public class Player : MonoBehaviour
         anim = GetComponent<Animator>();
         sprite = GetComponentInChildren<SpriteRenderer>();
         animCamera = Camera.instance.GetAnimator();
+        message = Message.instance;
         
         timeInAir=m_timeJump;
         normalSize=this.transform.localScale.x;
@@ -439,8 +439,8 @@ public class Player : MonoBehaviour
             hasBenediction = true;
             isMessageWaitingForBenediction = true;
         }
-        title.text = skill.getTitle(); 
-        description.text = skill.getDescription();
+        message.SetTitleText(skill.getTitle()); 
+        message.SetDescriptionText(skill.getDescription());
         message_animator.SetBool("isShowing",true);
         Destroy(col.gameObject);
         return;
