@@ -97,7 +97,7 @@ public class Player : MonoBehaviour
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sprite = GetComponentInChildren<SpriteRenderer>();
-        animCamera = vcam.GetComponent<Animator>();
+        animCamera = Camera.instance.GetAnimator();
         
         timeInAir=m_timeJump;
         normalSize=this.transform.localScale.x;
