@@ -8,6 +8,7 @@ public class Message : MonoBehaviour
     public static Message instance = null;
     private TextMeshProUGUI title;
     private TextMeshProUGUI description;
+    private Animator animator;
     
     void Awake() {
         if(instance == null) {
@@ -24,6 +25,7 @@ public class Message : MonoBehaviour
         TextMeshProUGUI[] tmp=GetComponentsInChildren<TextMeshProUGUI>();
         title = tmp[0];
         description = tmp[1];
+        animator = GetComponent<Animator>();
     }
     
     public void SetTitleText(string text) {
@@ -32,7 +34,11 @@ public class Message : MonoBehaviour
 
     public void SetDescriptionText(string text) {
         description.text=text;
-    }    
+    }   
+    
+    public void SetIsShowing(bool value) {
+        animator.SetBool("isShowing",value);
+    }   
     
     public TextMeshProUGUI GetTitle() {
         return title;
@@ -40,5 +46,9 @@ public class Message : MonoBehaviour
     
     public TextMeshProUGUI GetDescription() {
         return description;
+    }
+    
+    public Animator GetAnimator() {
+        return animator;
     }
 }

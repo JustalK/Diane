@@ -15,8 +15,6 @@ public class Player : MonoBehaviour
     public static Player instance = null;
     [SerializeField] private float m_DashForce = 25f;
     [SerializeField] private GameObject m_feetPosition;
-    [SerializeField] private GameObject dust;
-    [SerializeField] private Animator message_animator;
     [SerializeField] private float m_MovementSmoothing = 0.05f;
     [SerializeField] private float m_MovementSpeed = 800f;
     private CinemachineVirtualCamera vcam;
@@ -124,7 +122,6 @@ public class Player : MonoBehaviour
             if(Input.GetButton("Horizontal")) {
                 if(direction==1) keyRight=true;
                 if(direction==-1) keyLeft=true;
-                //if(isOnTheGround) Instantiate(dust,m_feetPosition.transform.position,Quaternion.identity);
             }
             
             if(Input.GetButton("Jump")) {
@@ -441,14 +438,14 @@ public class Player : MonoBehaviour
         }
         message.SetTitleText(skill.getTitle()); 
         message.SetDescriptionText(skill.getDescription());
-        message_animator.SetBool("isShowing",true);
+        message.SetIsShowing(true);
         Destroy(col.gameObject);
         return;
     }
     
     private void playerExecutingAction() {
         isMessageWaitingForJump=false;
-        message_animator.SetBool("isShowing",false);
+        message.SetIsShowing(false);
     }
     
     private void collisionBenediction(Collider2D col) {
