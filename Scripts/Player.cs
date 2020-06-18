@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 using UnityEngine;
 using Cinemachine;
 ﻿using System;
@@ -76,7 +75,7 @@ public class Player : MonoBehaviour
     private float timeLastReadingDialogue=0f;
 
     private float inLayer;
-    private Benediction inCurrentBenediction;
+    private GameObject inCurrentBenediction;
     private float normalSize;
     
     void Awake() {
@@ -175,7 +174,6 @@ public class Player : MonoBehaviour
             if(hasLiliputian && canPlayerLiliputian()) playerLiliputian();
             if(hasBenediction && canPlayerBenediction()) playerBenediction();
             if(canReadNextDialogue()) readNextDialogue();
-        Debug.Log(hasBenediction);
             
             m_Rigidbody2D.velocity = Vector2.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         }
@@ -267,33 +265,11 @@ public class Player : MonoBehaviour
     }
 
     private void playerBenediction() {
+
         if(isMessageWaitingForBenediction) playerExecutingAction();
-        
+        isAllowedToMove = false;
         anim.SetBool("benediction",true);
-        
-        
-        if(inCurrentBenediction.getType()=="Teleportation") {
-            StartCoroutine(playerTeleportation(inCurrentBenediction.getLayer(),inCurrentBenediction.getPosition().x,inCurrentBenediction.getPosition().y));
-            normalSize=inCurrentBenediction.getLiliputian();
-            changeTriggerCollisionGround("Ground0",true);
-            changeTriggerCollisionGround("Ground1",false);
-            inLayer=inCurrentBenediction.getLayer();
-        } else {
-            isAllowedToMove=false;
-            StartCoroutine(playerNewLevel(2));
-        }
-    }
-    
-    IEnumerator playerNewLevel(float seconds) {
-        yield return new WaitForSeconds(seconds);
-        SceneManager.LoadScene(inCurrentBenediction.getLevel());
-    }
-    
-    IEnumerator playerTeleportation(float seconds,float x,float y) {
-        yield return new WaitForSeconds(seconds);
-        playerNormalSize();
-        this.transform.position = new Vector2(x,y);
-        anim.SetBool("benediction",false);
+        GameManager.instance.ActionBenediction(inCurrentBenediction);
     }
     
     private void playerLiliputian() {
@@ -422,7 +398,8 @@ public class Player : MonoBehaviour
     void OnTriggerEnter2D(Collider2D col)
     {
         if(col.gameObject.layer == LayerMask.NameToLayer("Skill")) collisionSkill(col);
-        if(col.gameObject.layer == LayerMask.NameToLayer("Benediction")) collisionBenediction(col);
+        if(col.gameObject.layer == LayerMask.NameToLayer("Teleportation")) collisionBenediction(col);
+        if(col.gameObject.layer == LayerMask.NameToLayer("LoadingNewLevel")) collisionBenediction(col);
     }
     
     private void collisionSkill(Collider2D col) {
@@ -450,11 +427,12 @@ public class Player : MonoBehaviour
     
     private void collisionBenediction(Collider2D col) {
         isAllowedToBenediction=true;
-        inCurrentBenediction=col.gameObject.GetComponent<Benediction>();
+        inCurrentBenediction=col.gameObject;
     }
     
     void OnTriggerExit2D(Collider2D col) {
-        if(col.gameObject.layer == LayerMask.NameToLayer("Benediction")) exitBenediction(col);
+        if(col.gameObject.layer == LayerMask.NameToLayer("Teleportation")) exitBenediction(col);
+        if(col.gameObject.layer == LayerMask.NameToLayer("LoadingNewLevel")) exitBenediction(col);
     }
     
     private void exitBenediction(Collider2D col) {

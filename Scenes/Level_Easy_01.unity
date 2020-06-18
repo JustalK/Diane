@@ -38496,7 +38496,7 @@ GameObject:
   - component: {fileID: 2041066593}
   - component: {fileID: 2041066595}
   - component: {fileID: 2041066594}
-  m_Layer: 13
+  m_Layer: 14
   m_Name: BenedictionArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38552,14 +38552,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2041066592}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f799159b5905fc4a295473324cf8d2fe, type: 3}
+  m_Script: {fileID: 11500000, guid: fd832720c0083e26fb2dbe9bd44eeef9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportation: {fileID: 0}
-  liliputian: 0
-  layer: 0
   level: 1
-  type: 1
+  transition: Glowing
 --- !u!1 &2069917252
 GameObject:
   m_ObjectHideFlags: 0
