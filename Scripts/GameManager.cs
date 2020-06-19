@@ -6,6 +6,12 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance = null;
+    [SerializeField] private bool playerHasLeft=true;
+    [SerializeField] private bool playerHasRight=true;
+    [SerializeField] private bool playerHasJump=false;
+    [SerializeField] private bool playerHasLiliputian=false;
+    [SerializeField] private bool playerHasBenediction=false;
+    
     private Player player;
     private Timer timer;
     private Transitions transitions;
@@ -47,4 +53,25 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(level);
     }
     
+    // GETTER
+    
+    public bool isPlayerHasLeft () {
+        return playerHasLeft;
+    }
+    
+    public bool isPlayerHasRight () {
+        return playerHasRight;
+    }
+    
+    public bool isPlayerHasJump () {
+        return playerHasJump;
+    }
+    
+    public bool isPlayerHasLiliputian () {
+        return playerHasLiliputian;
+    }
+    
+    public bool isPlayerHasBenediction () {
+        return playerHasBenediction;
+    }
 }

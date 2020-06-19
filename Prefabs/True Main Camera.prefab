@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6575911077000422863}
   - component: {fileID: 6575911077000422896}
   - component: {fileID: 6575911077000422897}
+  - component: {fileID: 2364942741313044504}
   m_Layer: 0
   m_Name: True Main Camera
   m_TagString: Untagged
@@ -27,7 +28,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6575911077000422860}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.1311969, y: 0.68, z: -10}
+  m_LocalPosition: {x: -0.533818, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6575911077072996304}
@@ -53,8 +54,7 @@ MonoBehaviour:
   m_Priority: 10
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 0}
-  m_Follow: {fileID: 4016873929894401629, guid: 431c887a870065100848c658e6a6e4fe,
-    type: 3}
+  m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 60
     OrthographicSize: 4
@@ -106,6 +106,18 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &2364942741313044504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6575911077000422860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be21263e239810af586fc98a28d63404, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6575911077072996305
 GameObject:
   m_ObjectHideFlags: 0
@@ -116,7 +128,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6575911077072996304}
   - component: {fileID: 6575911077072996306}
-  - component: {fileID: 6575911077072996307}
+  - component: {fileID: 6790439636954338714}
   m_Layer: 0
   m_Name: cm
   m_TagString: Untagged
@@ -150,7 +162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6575911077072996307
+--- !u!114 &6790439636954338714
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -162,21 +174,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ad980451443d70438faac0bc6c235a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_LookaheadTime: 0.2
+  m_LookaheadTime: 0.1
   m_LookaheadSmoothing: 5
-  m_LookaheadIgnoreY: 1
-  m_XDamping: 0.2
-  m_YDamping: 0.2
-  m_ZDamping: 0.2
-  m_ScreenX: 0.52
-  m_ScreenY: 0.5
+  m_LookaheadIgnoreY: 0
+  m_XDamping: 1
+  m_YDamping: 1
+  m_ZDamping: 1
+  m_ScreenX: 0.5
+  m_ScreenY: 0.8
   m_CameraDistance: 10
-  m_DeadZoneWidth: 0.21
+  m_DeadZoneWidth: 0
   m_DeadZoneHeight: 0
   m_DeadZoneDepth: 0
   m_UnlimitedSoftZone: 0
-  m_SoftZoneWidth: 0.8
-  m_SoftZoneHeight: 0.05
+  m_SoftZoneWidth: 0.2
+  m_SoftZoneHeight: 0.8
   m_BiasX: 0
   m_BiasY: 0
   m_CenterOnActivate: 1

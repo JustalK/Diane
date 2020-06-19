@@ -12,6 +12,7 @@ using TMPro;
 public class Player : MonoBehaviour
 {
     public static Player instance = null;
+    private GameManager gameManager;
     [SerializeField] private float m_DashForce = 25f;
     [SerializeField] private GameObject m_feetPosition;
     [SerializeField] private float m_MovementSmoothing = 0.05f;
@@ -53,12 +54,12 @@ public class Player : MonoBehaviour
     private bool isMessageWaitingForJump = false;
     private bool isMessageWaitingForBenediction = false;
     
-    private bool hasLeft=true;
-    private bool hasRight=true;
-    private bool hasJump=false;
-    private bool hasLiliputian=false;
-    private bool hasBenediction=false;
-    private bool hasMadeOneMove=false;
+    private bool hasLeft;
+    private bool hasRight;
+    private bool hasJump;
+    private bool hasLiliputian;
+    private bool hasBenediction;
+    private bool hasMadeOneMove;
     
     private bool keyJump=false;
     private bool keyFall=false;
@@ -95,6 +96,13 @@ public class Player : MonoBehaviour
         sprite = GetComponentInChildren<SpriteRenderer>();
         animCamera = Camera.instance.GetAnimator();
         message = Message.instance;
+        gameManager = GameManager.instance;
+        
+        hasLeft = gameManager.isPlayerHasLeft();
+        hasRight = gameManager.isPlayerHasRight();
+        hasJump = gameManager.isPlayerHasJump();
+        hasLiliputian = gameManager.isPlayerHasLiliputian();
+        hasBenediction = gameManager.isPlayerHasBenediction();
         
         timeInAir=m_timeJump;
         normalSize=this.transform.localScale.x;
